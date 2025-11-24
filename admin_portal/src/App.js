@@ -27,7 +27,7 @@ function App() {
   // 🚩 移除: const { t } = useTranslation(); (这里没用到 t)
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/staff_portal">
       <Routes>
         {/* 登录页 */}
         <Route path="/login" element={<LoginPage />} />
