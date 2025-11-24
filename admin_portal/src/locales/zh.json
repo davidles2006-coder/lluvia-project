@@ -1,0 +1,159 @@
+{
+  "Switch to English": "Switch to English",
+  "切换中文": "切换中文",
+  "LLUVIA ADMIN": "LLUVIA 后勤管理",
+  "Logout": "退出登录",
+
+  "Search Member": "搜索会员",
+  "Enter phone number...": "请输入会员手机号...",
+  "Search": "搜索",
+  "Searching...": "搜索中...",
+  "Member not found": "未找到该会员",
+  "Found": "已找到",
+  "Go to Member Profile": "进入会员详情页",
+  
+  "Back to Search": "返回搜索",
+  "Member Details": "会员详情",
+  
+  "Phone": "电话",
+  "Level": "等级",
+  "Balance": "余额",
+  "Points": "积分",
+  "Loyalty Points": "积分",
+
+  "Recharge": "充值",
+  "Consume": "扣款/消费",
+  "Redeem Voucher": "核销代金券",
+  
+  "Select Recharge Amount": "选择充值金额",
+  "Consume (Deduct Balance)": "余额消费 (扣款)",
+  "Cash / Card Tracking": "现金/刷卡追踪 (仅积积分)",
+  "Consume Amount ($)": "消费金额 ($)",
+  "Confirm": "确认",
+  "Confirm Deduct": "确认扣款",
+  "Processing...": "处理中...",
+  "Success": "操作成功",
+  "Failed": "操作失败",
+  "Note: Irreversible": "注意：此操作不可撤销，将直接扣除会员余额。",
+  "10% Discount": "享10%折扣",
+  
+  "Vouchers Available": "可用代金券",
+  "No vouchers available.": "该会员没有可用的代金券。",
+  "Redeem": "核销",
+  "Expires:": "有效期至:",
+  "Value": "面值",
+  "Threshold": "最低消费",
+  "Expires": "有效期至",
+  "Status": "状态",
+  "Bill Amount": "账单总额 ($)",
+
+  "Bronze": "青铜会员",
+  "Silver": "白银会员",
+  "Gold": "黄金会员",
+  "Platinum": "铂金会员",
+  "Diamond": "钻石会员",
+
+  "sidebar": {
+    "member_search": "会员搜索",
+    "store_points": "积分商城管理",
+    "store_balance": "余额商城管理",
+    "store_vouchertypes": "代金券模板管理",
+    "content_announcements": "公告管理",
+    "nav_finance": "财务记录提取"
+  },
+
+  
+  "report": {
+    "date": "时间",
+    "member": "会员",
+    "amount": "金额",
+    "points": "积分变动",
+    "tab_recharge": "充值记录",
+    "tab_balance": "余额消费",
+    "tab_voucher": "代金券抵扣",
+    "tab_cash": "现金/刷卡收入",
+    "title_recharge": "总充值记录 (预收)",
+    "title_balance": "余额实际开销 (消耗)",
+    "title_voucher": "代金券记录 (成本/抵扣)",
+    "title_cash": "现金/刷卡收入 (实收)",
+    "filter_all": "全部时间",
+    "filter_today": "今天",
+    "filter_month": "本月",
+    "filter_year": "本年",
+    "Time Range": "时间范围",
+    "filter_custom_month": "按月查询",
+  "Select Month": "选择月份"
+  },
+
+
+  "search": {
+    "member_search": "会员搜索",
+    "phone_placeholder": "请输入会员手机号...",
+    "search_button": "搜索",
+    "member_not_found": "未找到该会员",
+    "search_failed": "搜索请求失败"
+  },
+
+  "member": {
+    "back_to_search": "返回搜索",
+    "detail_page_title": "会员详情",
+    "tab_recharge": "充值",
+    "tab_consume": "扣款",
+    "tab_redeem": "核销"
+  },
+
+  "admin": {
+    "store": {
+      "item_list": "商品列表",
+      "create_item": "添加新商品",
+      "edit_item": "编辑商品",
+      "name": "商品名称",
+      "pointsCost": "所需积分",
+      "balancePrice": "余额价格 ($)",
+      "voucher_type": "关联代金券 (Voucher Type)",
+      "select_voucher": "--- 请选择关联的券 ---",
+      "description": "商品描述",
+      "image_upload": "上传商品图片", 
+      "isActive": "是否上架?",
+      "create_button": "创建商品",
+      "update_button": "更新商品",
+      "cancel_edit": "取消编辑",
+      "actions": "操作",
+      "edit": "编辑",
+      "delete": "删除",
+      "confirm_delete": "确定要删除这个项目吗？",
+      "error_fetch_items": "获取列表失败",
+      "error_fetch_vouchertypes": "获取代金券类型失败",
+      "error_submit": "提交失败",
+      "error_delete": "删除失败"
+    },
+    "announcement": {
+      "create": "创建新公告",
+      "edit": "编辑公告",
+      "list": "当前公告列表",
+      "title": "公告标题 (内部用)",
+      "content": "公告详情内容",
+      "actionUrl": "跳转链接 (留空则进入详情页)",
+      "displayOrder": "排序 (越小越靠前)",
+      "expiryDate": "过期时间 (可选)",
+      "image_upload": "上传横幅图片",
+      "upload_failed": "图片上传失败",
+      "no_image": "未选择图片",
+      "uploading": "上传图片中...",
+      "error_fetch": "获取公告列表失败",
+      "error_submit": "保存公告失败"
+    },
+    "vouchertype": {
+       "create": "创建代金券模板",
+       "edit": "编辑代金券模板",
+       "list": "代金券/产品列表",
+       "value": "面值",
+       "threshold": "最低消费门槛",
+       "expiryDays": "有效期 (天)",
+       "costOfGoods": "公司成本",
+       "stockCount": "库存 (空=无限)",
+       "error_fetch": "获取模板失败",
+       "error_submit": "保存失败"
+    }
+  }
+}

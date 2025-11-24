@@ -1,0 +1,284 @@
+/* src/index.css - V11 Global Theme */
+
+/* 1. 全局字体和 V11 颜色变量 */
+:root {
+  /* V11 调色板 */
+  --color-bg: #1E1E1E;         /* 深炭黑 (主背景) */
+  --color-gold: #D4AF37;       /* 高级金 (强调色) */
+  --color-text: #FAFAFA;       /* 干净的白色 (文本) */
+  --color-grey: #282c34;       /* 深灰色 (卡片背景) */
+  --color-silver: #C0C0C0;    /* 银色 (用于等级) */
+  --color-bronze: #cd7f32;   /* 青铜色 (用于等级) */
+  --color-danger: #e74c3c;    /* 红色 (用于登出) */
+
+  /* V11 字体 */
+  --font-body: 'Roboto', sans-serif;
+  --font-heading: 'Merriweather', serif;
+}
+
+/* 2. 重置 (Reset) 和基础背景 */
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  /* * 重要：我们在这里设置 V11 的基础背景色。
+   * 这将是登录页/注册页的背景。
+   * (会员内部的背景将由 MemberLayout/DashboardPage 动态控制)
+   */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+}
+
+/* 3. V11 按钮库 (Button Library) */
+
+/* 3a. "药丸" 按钮 (用于 登录 / 兑换) */
+.btn-pill {
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 12px 30px;
+  border-radius: 50px; /* "药丸" 形状 */
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  
+  /* 默认为金色实心 */
+  background-color: var(--color-gold);
+  color: #000; /* 金色背景配黑色文字 */
+}
+
+.btn-pill:hover {
+  background-color: var(--color-text); /* 悬停变白色 */
+  color: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(212, 175, 55, 0.3);
+}
+
+/* 3b. "幽灵" 按钮 (用于 编辑资料) */
+.btn-ghost {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 10px 24px;
+  border-radius: 50px; /* 同样使用药丸形状 */
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+
+  /* "幽灵" 样式：透明背景 + 金色边框 */
+  background-color: transparent;
+  border: 2px solid var(--color-gold);
+  color: var(--color-gold);
+}
+
+.btn-ghost:hover {
+  /* 悬停时 "亮起" */
+  background-color: var(--color-gold);
+  color: #000; /* 黑色文字 */
+}
+
+/* 3c. "独立文字链接" (用于 导航 / 次要动作) */
+.link-independent {
+  font-size: 16px;
+  color: var(--color-text); /* 白色 */
+  text-decoration: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: color 0.3s ease;
+}
+
+.link-independent:hover {
+  color: var(--color-gold); /* 悬停变金色 */
+}
+
+/* 登出的特殊颜色 */
+.link-independent.logout:hover {
+  color: var(--color-danger);
+}
+
+/* ====================================================== */
+/* 🚀 V117: 全局统一流光 (强制大圆旋转 - 类似资料卡) */
+/* ====================================================== */
+
+/* 1. 动画引擎 (必须和 DashboardPage.css 一致) */
+@keyframes universalRotate {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 2. 容器设置 */
+.v11-banner-item,
+.v11-store-item {
+  position: relative !important;
+  z-index: 0 !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: none !important; 
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  /* 确保它是 flex 布局，内容居中 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 3. 遮罩层 (Mask) - 黑色内芯 */
+.v11-banner-item::after,
+.v11-store-item::after {
+  content: '';
+  position: absolute;
+  z-index: -1; 
+  inset: 3px; /* 边框粗细 */
+  background: #000; 
+  border-radius: 10px; 
+}
+
+/* 4. 旋转层 (Rotator) - 关键修复 */
+.v11-banner-item::before,
+.v11-store-item::before {
+  content: '';
+  position: absolute;
+  z-index: -2;
+  
+  /* 绝对居中 */
+  top: 50%; 
+  left: 50%;
+  
+  /* 🚩 核心修复：使用 150vmax */
+  /* vmax 代表屏幕"最长"的那一边。150vmax 意味着这个圆盘比你整个屏幕还要大1.5倍 */
+  /* 这样无论你的公告栏有多长，它都在圆盘的圆心附近，看起来就是直的 */
+  width: 150vmax; 
+  height: 150vmax; 
+  
+  background: transparent; 
+  animation: universalRotate 4s linear infinite;
+}
+
+/* ====================================================== */
+/* 5. 配色定义 (单向拖尾 - 严格复刻资料卡) */
+/* ====================================================== */
+
+/* 🥈 白银 (Silver) */
+.level-silver .v11-banner-item::before,
+.level-silver .v11-store-item::before {
+  background: conic-gradient(
+    transparent, 
+    #7f8c8d, 
+    #ffffff, 
+    #7f8c8d, 
+    transparent 30%
+  );
+  animation-duration: 6s;
+}
+
+/* ✨ 黄金 (Gold) */
+.level-gold .v11-banner-item::before,
+.level-gold .v11-store-item::before {
+  background: conic-gradient(
+    transparent, 
+    #d48806, 
+    #fadb14, 
+    #d48806, 
+    transparent 50%
+  );
+  animation-duration: 4s;
+}
+
+/* 🏆 铂金 (Platinum) */
+.level-platinum .v11-banner-item::before,
+.level-platinum .v11-store-item::before {
+  background: conic-gradient(
+    transparent, 
+    #40a9ff, 
+    #e6f7ff, 
+    transparent 60%
+  );
+  animation-duration: 4s;
+}
+
+/* 💎 钻石 (Diamond) */
+.level-diamond .v11-banner-item::before,
+.level-diamond .v11-store-item::before {
+  background: conic-gradient(
+    transparent, 
+    #00FFFF, 
+    #FFFFFF, 
+    #00FFFF, 
+    transparent 40%
+  );
+  animation-duration: 3s;
+}
+
+/* 🥉 青铜 (Bronze) - 无特效 */
+.level-bronze .v11-banner-item::before, .level-bronze .v11-banner-item::after,
+.level-bronze .v11-store-item::before, .level-bronze .v11-store-item::after {
+  display: none !important;
+}
+.level-bronze .v11-banner-item,
+.level-bronze .v11-store-item {
+  border: 1px solid #444 !important;
+}
+
+/* src/index.css - 底部追加 */
+
+/* ========================================= */
+/* 💎 全局通用弹窗样式 (Global Modal) */
+/* ========================================= */
+
+@keyframes modalFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.v11-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  /* 🚩 强制居中核心 */
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 2000; /* 确保在最上层 */
+  backdrop-filter: blur(5px);
+}
+
+.v11-modal-content {
+  background-color: #1e1e1e; /* 深灰背景 */
+  border: 2px solid #D4AF37; /* 金色边框 */
+  border-radius: 16px;
+  padding: 40px;
+  width: 90%;
+  max-width: 400px; /* 确认框不需要太宽 */
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
+  text-align: center;
+  color: #fff;
+  animation: modalFadeIn 0.3s ease-out forwards;
+  margin: 0 !important;
+}
+
+.v11-modal-title {
+  color: #D4AF37;
+  font-family: serif;
+  font-size: 22px;
+  margin-top: 0;
+  margin-bottom: 20px;
+}
+
+.v11-modal-text {
+  color: #e0e0e0;
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.v11-modal-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.v11-modal-actions button {
+  flex: 1;
+}

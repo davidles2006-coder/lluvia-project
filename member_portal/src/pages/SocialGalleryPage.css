@@ -1,0 +1,104 @@
+/* src/pages/SocialGalleryPage.css */
+
+.v11-gallery-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 50px;
+}
+
+.v11-gallery-loading, .v11-no-data {
+  color: var(--color-text);
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+}
+
+.v11-gallery-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.v11-gallery-title {
+  font-family: var(--font-heading);
+  font-size: 36px;
+  color: var(--color-gold);
+  margin: 0 0 10px 0;
+}
+
+.v11-gallery-subtitle {
+  color: #888;
+  font-size: 16px;
+}
+
+.v11-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.v11-member-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 30px 20px;
+  transition: transform 0.3s ease;
+}
+
+.v11-member-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(212, 175, 55, 0.15);
+}
+
+.v11-member-avatar-wrapper {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.v11-member-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--color-gold);
+}
+
+/* 排名角标 */
+.v11-rank-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: var(--color-gold);
+  color: #000;
+  font-weight: bold;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.v11-member-name {
+  font-size: 18px;
+  margin: 0 0 5px 0;
+  color: #fff;
+}
+
+.v11-member-level {
+  font-size: 12px;
+  color: #aaa;
+  background: #333;
+  padding: 3px 10px;
+  border-radius: 20px;
+  margin-bottom: 10px;
+}
+
+.v11-member-flair {
+  font-style: italic;
+  color: #666;
+  font-size: 13px;
+  margin: 0;
+}

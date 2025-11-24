@@ -1,0 +1,114 @@
+/* src/components/MemberLayout.css - V91 动态流体视觉版 */
+
+/* 1. 定义背景流动的动画引擎 */
+@keyframes gradientMove {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* 2. 基础布局 */
+.v11-layout {
+  min-height: 100vh;
+  color: #fff;
+  transition: all 0.5s ease;
+  
+  /* 核心设置：让背景图变大，这样才能"流动" */
+  background-size: 400% 400%;
+  animation: gradientMove 15s ease infinite; /* 15秒循环一次，缓慢流动 */
+}
+
+.v11-content {
+  padding: 40px;
+  background: transparent; 
+  position: relative;
+  z-index: 1; /* 确保内容浮在背景之上 */
+}
+
+/* ------------------------------------- */
+/* 3. 动态背景定义 (冲击力全开) */
+/* ------------------------------------- */
+
+/* 🥉 青铜 (Bronze) - 【极简黑 / Pure Black】 */
+/* 彻底移除任何纹理、渐变和动画。就是纯净的黑。 */
+.level-bronze {
+  background-color: #121212; /* 护眼深黑 */
+  background-image: none;    /* 无图片 */
+  background-size: auto;     /* 重置大小 */
+  animation: none;           /* 禁止这一层的动画 */
+}
+
+/* 🥈 白银 (Silver) - 【液态水银】 */
+.level-silver { 
+  background-image: linear-gradient(-45deg,
+   #000000,
+   #1a1837,
+   #050f15, 
+   #012141, 
+   #000000);
+}
+
+/* ✨ 黄金 (Gold) - 【熔岩黑金】 */
+.level-gold {
+  background-image: linear-gradient(-45deg, 
+  #000000, 
+  #200702, 
+  #2c0b03, 
+  #290a02, 
+  #000000);
+  animation-duration: 8s;
+}
+
+/* 🏆 铂金 (Platinum) - 【赛博霓虹】 */
+.level-platinum { 
+  background-image: linear-gradient(-45deg, 
+  #020024, 
+  #230964, 
+  #50066e, 
+  #23036e, 
+  #020024);
+  animation-duration: 10s;
+}
+
+/* 💎 钻石 (Diamond) - 【全息极光】 */
+.level-diamond { 
+  background-image: linear-gradient(-45deg, 
+  #27033e, 
+  #024152, 
+  #09094c, 
+  #076265, 
+  #2f044f);
+  animation-duration: 10s; 
+}
+
+
+/* ------------------------------------- */
+/* 4. 导航栏 (保持不变，加一点透明度) */
+/* ------------------------------------- */
+.v11-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 40px;
+  height: 70px;
+  /* 半透明黑，让背景能透一点出来 */
+  background-color: rgba(0, 0, 0, 0.8); 
+  border-bottom: 2px solid var(--color-gold);
+  backdrop-filter: blur(10px); /* 毛玻璃效果 */
+  position: relative;
+  z-index: 10;
+}
+
+.v11-nav-left, .v11-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 25px;
+}
+
+.v11-logo {
+  font-family: 'Merriweather', serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--color-gold);
+  margin-right: 20px;
+}

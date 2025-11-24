@@ -1,0 +1,91 @@
+/* 这是 src/App.css 文件的内容 (V2) */
+.App { text-align: center; }
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+input {
+  font-size: 20px;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 5px;
+  border: none;
+}
+button {
+  font-size: 20px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  background-color: #61dafb;
+  border: none;
+  cursor: pointer;
+}
+.error-message {
+  color: #ff6b6b;
+  font-size: 16px;
+}
+/* 添加到 App.css 末尾 (Admin 页面样式) */
+
+.admin-page-container {
+    padding: 20px;
+}
+
+.admin-table-container {
+    overflow-x: auto; /* 确保表格在小屏幕上可以滚动 */
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.admin-table th,
+.admin-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.admin-table th {
+    background-color: #f4f4f4;
+}
+
+.admin-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.action-button {
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    margin-right: 5px;
+}
+
+.action-button.edit {
+    background-color: #ffc107;
+    color: #333;
+}
+
+.action-button.delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+/* 复用 tab-content-real 的样式 */
+.tab-content-real {
+     padding: 20px;
+     background-color: #f9f9f9;
+     border: 1px solid #ddd;
+     border-radius: 5px;
+     margin-bottom: 20px;
+}

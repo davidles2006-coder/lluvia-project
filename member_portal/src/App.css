@@ -1,0 +1,45 @@
+/* 这是 src/App.css 文件的内容 (V7) */
+.App { text-align: center; }
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+  max-width: 400px;
+}
+input {
+  font-size: 18px;
+  padding: 10px;
+  margin: 8px 0;
+  border-radius: 5px;
+  border: none;
+}
+button {
+  font-size: 20px;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 5px;
+  background-color: #61dafb;
+  border: none;
+  cursor: pointer;
+}
+a {
+  color: #61dafb;
+}
+.error-message {
+  color: #ff6b6b;
+  font-size: 16px;
+}
+.success-message {
+  color: #7aff7a;
+  font-size: 16px;
+}

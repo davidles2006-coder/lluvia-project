@@ -1,0 +1,105 @@
+/* src/components/Layout.css */
+
+/* 整体布局 */
+.admin-layout {
+  display: flex;
+  min-height: 100vh; /* 占满全屏高度 */
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* --- 侧边栏 --- */
+.admin-sidebar {
+  width: 250px;
+  background-color: #001529; /* 深蓝背景 */
+  color: white;
+  display: flex;
+  flex-direction: column; /* 垂直排列 */
+  flex-shrink: 0; /* 防止被压缩 */
+  transition: width 0.2s;
+}
+
+/* Logo 区域 */
+.sidebar-header {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #002140;
+  font-size: 18px;
+  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+/* 导航菜单 */
+.sidebar-nav {
+  flex: 1; /* 🚩 关键：占据剩余所有空间，把底部挤下去 */
+  padding-top: 20px;
+  overflow-y: auto;
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-link {
+  display: block;
+  padding: 12px 24px;
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.nav-link:hover {
+  color: #fff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.nav-link.active {
+  background-color: #1890ff; /* 激活时的蓝色 */
+  color: #fff;
+}
+
+/* 底部区域 (用户信息 + 按钮) */
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: #001529;
+}
+
+.user-info {
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.45);
+  text-align: center;
+}
+
+/* 登出按钮 */
+.btn-logout {
+  width: 100%;
+  padding: 10px;
+  background-color: transparent;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+}
+
+.btn-logout:hover {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+/* --- 右侧内容区 --- */
+.admin-content {
+  flex: 1;
+  background-color: #121212; /* 极暗背景 (和登录页一致) */
+  color: #e0e0e0; /* 全局文字变灰白 */
+  padding: 24px;
+  overflow-y: auto;
+}

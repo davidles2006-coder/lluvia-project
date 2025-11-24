@@ -1,0 +1,319 @@
+/* src/pages/DashboardPage.css - V124 (滚动 + 流光 完美共存版) */
+
+/* ========================================= */
+/* 1. 动画引擎 (Animations) */
+/* ========================================= */
+
+/* 旋转动画 (流光核心) */
+@keyframes rotateGlow {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* 进度条流光 */
+@keyframes progressFlow {
+  0% { background-position: 0 0; }
+  100% { background-position: 30px 30px; }
+}
+
+/* 弹窗浮现 */
+@keyframes modalCenterFadeIn {
+  from { opacity: 0; transform: scale(0.95) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ========================================= */
+/* 2. 基础布局 */
+/* ========================================= */
+.v11-dashboard-container {
+  background: transparent;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-bottom: 50px;
+  color: #e0e0e0;
+}
+
+.v11-dashboard-loading {
+  color: #aaa;
+  font-size: 18px;
+  text-align: center;
+  padding: 50px;
+}
+
+/* 标签页导航 */
+.v11-tabs {
+  display: flex;
+  gap: 30px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #444;
+}
+
+.v11-tabs .link-independent {
+  font-size: 18px;
+  padding-bottom: 15px;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  color: #888;
+}
+
+.v11-tabs .link-independent.active {
+  color: #D4AF37;
+  border-bottom-color: #D4AF37;
+}
+
+.v11-tabs .link-independent:not(.active):hover {
+  color: #fff;
+}
+
+/* ========================================= */
+/* 3. 公告栏 (滚动条 + 流光 核心修复) */
+/* ========================================= */
+.v11-announcements-section {
+  margin-bottom: 30px;
+  
+  /* 强制横向排列 */
+  display: flex !important;
+  gap: 20px; /* 卡片间距加大一点，防止光圈重叠 */
+  
+  /* 开启横向滚动 */
+  overflow-x: auto; 
+  overflow-y: hidden;
+  
+  /* 滚动优化 */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  
+  /* 留出底部空间给滚动条 */
+  padding-bottom: 15px; 
+}
+
+/* --- 滚动条美化 --- */
+.v11-announcements-section::-webkit-scrollbar {
+  height: 6px; /* 细一点 */
+}
+.v11-announcements-section::-webkit-scrollbar-track {
+  background: #1a1a1a; 
+  border-radius: 3px;
+}
+.v11-announcements-section::-webkit-scrollbar-thumb {
+  background: #444; 
+  border-radius: 3px;
+}
+.v11-announcements-section::-webkit-scrollbar-thumb:hover {
+  background: #D4AF37; /* 悬停变金 */
+}
+
+/* --- 公告卡片容器 --- */
+.v11-banner-item {
+  /* 布局属性 */
+  position: relative !important;
+  flex: 0 0 85%; /* 手机端宽度 */
+  height: 160px;
+  min-width: 85%;
+  
+  /* 样式属性 */
+  background: transparent !important; /* 必须透明，透出后面的光 */
+  border-radius: 12px;
+  
+  /* 关键：溢出隐藏 (把超大的旋转光圈剪切成边框) */
+  overflow: hidden !important; 
+  
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  
+  /* 移除所有边框，完全靠流光 */
+  border: none !important;
+  z-index: 0;
+}
+
+/* 电脑端宽度 */
+@media (min-width: 768px) {
+  .v11-banner-item {
+    flex: 0 0 400px !important; 
+    min-width: 400px !important;
+  }
+}
+
+/* ----------------------------------- */
+/* 🚩 流光特效逻辑 (找回丢失的代码) */
+/* ----------------------------------- */
+
+/* 1. 遮罩层 (黑色内芯) */
+.v11-banner-item::after {
+  content: '';
+  position: absolute;
+  z-index: -1; /* 在内容之下，光圈之上 */
+  inset: 3px;  /* 边框粗细 */
+  background: #000; /* 卡片实际背景色 */
+  border-radius: 10px;
+}
+
+/* 2. 旋转层 (巨大光圈) */
+.v11-banner-item::before {
+  content: '';
+  position: absolute;
+  z-index: -2; /* 最底层 */
+  
+  /* 绝对居中 */
+  top: 50%; 
+  left: 50%;
+  
+  /* 🚩 150vmax: 确保光圈足够大，覆盖长方形 */
+  width: 150vmax; 
+  height: 150vmax; 
+  
+  background: transparent; /* 默认透明 */
+  
+  /* 旋转动画 */
+  animation: rotateGlow 4s linear infinite;
+}
+
+/* 公告标题 */
+.v11-banner-caption {
+  position: absolute; bottom: 0; left: 0; width: 100%;
+  background: rgba(0, 0, 0, 0.7); color: #D4AF37;
+  padding: 8px 12px; font-size: 14px; font-weight: bold;
+  z-index: 10; text-align: left;
+}
+
+/* ========================================= */
+/* 4. 个人资料卡片 (保持流光) */
+/* ========================================= */
+.v11-profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
+
+/* 同样的流光逻辑应用于 Avatar/Info/Card */
+.v11-card, .v11-avatar-card, .v11-info-card {
+  position: relative; z-index: 0; overflow: hidden;
+  background: #1e1e1e; border-radius: 12px; padding: 30px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5); border: none !important;
+}
+.v11-card::after, .v11-avatar-card::after, .v11-info-card::after {
+  content: ''; position: absolute; z-index: -1; inset: 3px; background: #1e1e1e; border-radius: 10px;
+}
+.v11-card::before, .v11-avatar-card::before, .v11-info-card::before {
+  content: ''; position: absolute; z-index: -2; top: 50%; left: 50%; width: 150vmax; height: 150vmax; background: transparent; animation: rotateGlow 4s linear infinite;
+}
+
+/* 内容排版 */
+.v11-avatar-card { display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: center !important; text-align: center !important; }
+.v11-avatar-wrapper { position: relative; margin-bottom: 20px; display: flex; justify-content: center; }
+.v11-avatar { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #555; position: relative; z-index: 1; }
+.v11-username { font-family: serif; font-size: 24px; color: #fff; margin: 0 0 10px 0; position: relative; z-index: 1; text-align: center; }
+.v11-level-badge { display: inline-block; font-size: 14px; font-weight: bold; padding: 5px 15px; border-radius: 20px; text-transform: uppercase; position: relative; z-index: 1; margin: 0 auto; }
+.level-badge-bronze { background: #cd7f32; color: #fff; }
+.level-badge-silver { background: #c0c0c0; color: #000; }
+.level-badge-gold { background: #D4AF37; color: #000; }
+.level-badge-platinum { background: #e5e4e2; color: #000; }
+.level-badge-diamond { background: #b9f2ff; color: #000; }
+
+.v11-info-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.v11-info-header h4 { margin: 0; color: #D4AF37; font-size: 20px; }
+.v11-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px 25px; font-size: 15px; color: #e0e0e0; }
+.v11-divider { border: 0; height: 1px; background: #444; margin: 30px 0; }
+
+/* ========================================= */
+/* 5. 等级配色 (单向流光定义) */
+/* ========================================= */
+
+/* 适用于: Banner, StoreItem, Avatar, InfoCard, Vouchers, Transactions */
+/* 利用 CSS 选择器分组，确保所有组件都能吃到颜色 */
+
+/* 🥈 白银 */
+.level-silver .v11-banner-item::before, 
+.level-silver .v11-store-item::before,
+.level-silver-frame::before {
+  background: conic-gradient(transparent, #7f8c8d, #ffffff, #7f8c8d, transparent 30%);
+  animation-duration: 6s;
+}
+
+/* ✨ 黄金 */
+.level-gold .v11-banner-item::before, 
+.level-gold .v11-store-item::before,
+.level-gold-frame::before {
+  background: conic-gradient(transparent, #d48806, #fadb14, #d48806, transparent 50%);
+  animation-duration: 4s;
+}
+
+/* 🏆 铂金 */
+.level-platinum .v11-banner-item::before, 
+.level-platinum .v11-store-item::before,
+.level-platinum-frame::before {
+  background: conic-gradient(transparent, #40a9ff, #e6f7ff, transparent 60%);
+  animation-duration: 4s;
+}
+
+/* 💎 钻石 */
+.level-diamond .v11-banner-item::before, 
+.level-diamond .v11-store-item::before,
+.level-diamond-frame::before {
+  background: conic-gradient(transparent, #00FFFF, #FFFFFF, #00FFFF, transparent 40%);
+  animation-duration: 3s;
+}
+
+/* 🥉 青铜 (无特效) */
+.level-bronze .v11-banner-item::before, .level-bronze .v11-banner-item::after,
+.level-bronze-frame::before, .level-bronze-frame::after {
+  display: none !important;
+}
+.level-bronze .v11-banner-item, .level-bronze-frame {
+  border: 1px solid #444 !important;
+}
+
+
+/* ========================================= */
+/* 6. 进度条 */
+/* ========================================= */
+.v11-progress-bar { background: #1a1a1a; border-radius: 20px; height: 12px; overflow: hidden; margin-bottom: 10px; border: 1px solid #444; position: relative; }
+.v11-progress-fill { height: 100%; border-radius: 20px; background-color: #D4AF37; transition: width 1.0s ease-out; position: relative; overflow: hidden; }
+.v11-progress-fill::after { content: ''; position: absolute; top: 0; left: 0; bottom: 0; right: 0; background-image: linear-gradient(45deg, rgba(255,255,255,0.4) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.4) 75%, transparent 75%, transparent); background-size: 20px 20px; animation: progressFlow 1s linear infinite; z-index: 2; }
+.v11-progress-text { text-align: right; font-size: 14px; color: #aaa; }
+
+/* ========================================= */
+/* 7. 代金券黑金票据样式 */
+/* ========================================= */
+.v11-voucher-ticket { background: linear-gradient(135deg, #222, #333); border-left: 6px solid #D4AF37; border-radius: 8px; padding: 0; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: transform 0.3s ease; overflow: hidden; margin-bottom: 15px; }
+.v11-voucher-ticket:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(212, 175, 55, 0.2); }
+.ticket-header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.05); }
+.ticket-title { margin: 0; font-size: 18px; color: #fff; font-family: serif; }
+.ticket-value { font-size: 24px; font-weight: bold; color: #D4AF37; font-family: monospace; }
+.ticket-divider { height: 2px; background-image: linear-gradient(to right, #555 50%, transparent 50%); background-size: 10px 2px; margin: 0 10px; }
+.ticket-body { padding: 15px 20px; font-size: 13px; color: #aaa; display: flex; justify-content: space-between; align-items: center; }
+.ticket-status { padding: 4px 10px; border-radius: 4px; font-weight: bold; text-transform: uppercase; font-size: 12px; }
+.status-unused { background: rgba(46, 204, 113, 0.2); color: #2ecc71; border: 1px solid #2ecc71; }
+.status-used { background: rgba(127, 140, 141, 0.2); color: #7f8c8d; }
+
+/* 内部滚动条 */
+.v11-scroll-box { max-height: 500px; overflow-y: auto; padding-right: 5px; padding-bottom: 10px; }
+.v11-scroll-box::-webkit-scrollbar { width: 8px; }
+.v11-scroll-box::-webkit-scrollbar-track { background: #1a1a1a; border-radius: 4px; }
+.v11-scroll-box::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; border: 1px solid #1a1a1a; }
+.v11-scroll-box::-webkit-scrollbar-thumb:hover { background: #D4AF37; }
+
+/* ========================================= */
+/* 8. 弹窗 */
+/* ========================================= */
+.v11-modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.85); display: flex !important; justify-content: center !important; align-items: center !important; z-index: 1000; backdrop-filter: blur(5px); }
+.v11-modal-content { background-color: #1e1e1e; border: 2px solid #D4AF37; border-radius: 16px; padding: 40px; width: 90%; max-width: 500px; box-shadow: 0 0 30px rgba(212, 175, 55, 0.2); position: relative; animation: modalCenterFadeIn 0.3s ease-out forwards; margin: 0 !important; }
+.v11-modal-title { color: #D4AF37; font-family: serif; font-size: 24px; margin-top: 0; margin-bottom: 30px; text-align: center; }
+.v11-modal-actions { display: flex; justify-content: space-between; margin-top: 30px; gap: 20px; }
+.v11-modal-actions button { flex: 1; }
+.btn-cancel { background: transparent; border: 1px solid #666; color: #ccc; border-radius: 50px; padding: 12px; cursor: pointer; font-weight: bold; transition: all 0.3s; }
+.btn-cancel:hover { border-color: #fff; color: #fff; }
+
+/* 响应式 */
+@media (max-width: 768px) {
+  .v11-profile-grid { grid-template-columns: 1fr; text-align: center; }
+  .v11-info-header { flex-direction: column; gap: 15px; }
+  .v11-info-grid { grid-template-columns: 1fr; text-align: left; }
+  .v11-banner-item { flex: 0 0 400px !important; min-width: 400px !important; }
+}
+@media (max-width: 480px) {
+  .v11-banner-item { flex: 0 0 85% !important; min-width: 85% !important; }
+}

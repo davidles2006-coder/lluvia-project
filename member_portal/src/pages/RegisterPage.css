@@ -1,0 +1,127 @@
+/* 这是 src/pages/RegisterPage.css - (设计 C：高对比度戏剧风格) */
+
+/* 引入一个大胆的、高辨识度的字体 */
+@import url('https://fonts.googleapis.com/css2?family=Chivo:wght@400;700;900&display=swap');
+
+/* 全局容器 */
+.register-page-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #111111; /* 纯黑背景 */
+    padding: 20px;
+    font-family: 'Chivo', sans-serif;
+}
+
+/* 戏剧卡片 (高对比度) */
+.register-card {
+    background-color: #1E1E1E; /* 深炭灰色 */
+    padding: 40px 50px;
+    border-radius: 6px; 
+    border: 1px solid rgba(255, 0, 127, 0.6); 
+    /* 🚩 FIX 2：多层发光阴影，实现霓虹灯效果 */
+    box-shadow: 
+        0 0 8px rgba(255, 0, 127, 0.8), /* 内层洋红光晕 */
+        0 0 20px rgba(0, 191, 255, 0.5), /* 外层电光蓝晕影 */
+        0 4px 15px rgba(0, 0, 0, 0.7);  /* 底部实体阴影 */
+    width: 100%;
+    max-width: 480px; /* 稍微放大卡片 */
+    color: #F0F0F0;
+    text-align: center;
+}
+
+/* 标题 - 强烈的视觉冲击 */
+.register-card h1 {
+    color: #FF007F; /* 炽热洋红 */
+    font-size: 2.2em;
+    font-weight: 900;
+    margin-bottom: 35px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    /* 增加一个细微的文字阴影，模拟发光 */
+    text-shadow: 0 0 5px rgba(255, 0, 127, 0.6); 
+}
+
+/* 输入框组 */
+.form-group {
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: #00BFFF; /* 电光蓝标签 */
+    font-size: 1.05em;
+}
+
+/* 输入框 */
+.form-group input {
+    width: 100%;
+    padding: 14px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #000; /* 输入框使用纯黑，与背景区分 */
+    color: white;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    border-color: #FF007F; /* 聚焦时变成洋红色 */
+    outline: none;
+    box-shadow: 0 0 8px #FF007F; /* 强烈的聚焦光环 */
+}
+
+/* 按钮 - 视觉焦点 */
+.submit-button {
+    width: 100%;
+    padding: 18px;
+    background-color: #FF007F; /* 提交按钮使用炽热洋红 */
+    color: #111111;
+    border: none;
+    border-radius: 4px;
+    font-size: 1.2em;
+    font-weight: 900;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.2s, transform 0.1s;
+    text-transform: uppercase;
+    box-shadow: 0 4px 0 #A80053; /* 3D 立体感 */
+}
+
+.submit-button:hover {
+    background-color: #FF3399;
+    transform: translateY(-2px); /* 轻微上浮 */
+    box-shadow: 0 6px 0 #A80053;
+}
+
+.submit-button:disabled {
+    background-color: #444;
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+/* 错误信息 */
+.error-message {
+    color: #ff6b6b;
+    margin-top: -15px;
+    margin-bottom: 20px;
+    font-size: 1em;
+}
+
+/* 底部链接 */
+.bottom-link {
+    display: block;
+    margin-top: 30px;
+    color: #00BFFF;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.bottom-link:hover {
+    color: #33FFFF;
+}
