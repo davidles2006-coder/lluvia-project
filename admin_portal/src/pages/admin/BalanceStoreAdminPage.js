@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import './AdminPageStyles.css';
 
-import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
+import { API_BASE_URL as API_ROOT } from '../../config';
 
 const API_BASE_URL = `${API_ROOT}/api`; // 🚩 加上 /api/ 变成最终 API 地址
 
