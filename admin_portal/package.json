@@ -1,6 +1,7 @@
 {
   "name": "admin_portal",
   "version": "0.1.0",
+  "homepage": "/staff_portal",
   "private": true,
   "dependencies": {
     "@testing-library/dom": "^10.4.1",
