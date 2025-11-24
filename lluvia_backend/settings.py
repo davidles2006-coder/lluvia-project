@@ -85,7 +85,7 @@ DATABASES = {
         'USER': 'lluvia_user',
         
         # 🚩 必须改！服务器上的密码是你刚才设的强密码 (不是本地那个)
-        'PASSWORD': 'Lluvia2025', 
+        'PASSWORD': 'Final2025!', 
         
         'HOST': 'localhost',
         'PORT': '5432',
