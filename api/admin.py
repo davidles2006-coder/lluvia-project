@@ -1,19 +1,44 @@
 # 这是 api/admin.py 文件的内容
 
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from . import models # 从我们这个文件夹导入 models.py
 
 # 
 # 1. 身份与权限 (V7)
 #
 @admin.register(models.Member)
-class MemberAdmin(admin.ModelAdmin):
-    list_display = ['nickname', 'email', 'phone', 'level', 'loyaltyPoints', 'balance', 'is_staff']
-    search_fields = ['nickname', 'email', 'phone'] # 允许我们按这三个字段搜索
-    list_filter = ['level', 'is_staff', 'socialOptIn']
-    ordering = ['nickname']
-    # 我们以后可以在这里添加更多自定义功能
-
+class MemberAdmin(BaseUserAdmin):
+    # 定义在列表页显示哪些字段
+    list_display = ('email', 'nickname', 'phone', 'role', 'level', 'balance', 'is_staff', 'is_superuser')
+    
+    # 定义哪些字段可以点击进入编辑
+    list_display_links = ('email', 'nickname')
+    
+    # 定义过滤器 (右侧侧边栏)
+    list_filter = ('role', 'is_staff', 'is_superuser', 'level')
+    
+    # 定义搜索框能搜什么
+    search_fields = ('email', 'phone', 'nickname')
+    
+    # 详情页的字段排列
+    fieldsets = (
+        (None, {'fields': ('email', 'password')}),
+        ('Personal info', {'fields': ('nickname', 'phone', 'dob', 'avatarUrl')}),
+        ('Permissions', {'fields': ('role', 'is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')}),
+        ('Membership', {'fields': ('level', 'loyaltyPoints', 'lifetimePoints', 'balance', 'balanceExpiryDate')}),
+        ('Legal', {'fields': ('isTermsAgreed', 'termsAgreedTime')}),
+    )
+    
+    # 创建新用户页面的字段
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            'fields': ('email', 'phone', 'password', 'confirm_password'),
+        }),
+    )
+    
+    ordering = ('email',)
 # 
 # 2. 忠诚度与社交 (V11/V12)
 #
