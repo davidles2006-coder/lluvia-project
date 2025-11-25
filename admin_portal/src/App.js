@@ -1,12 +1,11 @@
-// src/App.js - Admin Portal (V48 修复: 移除未使用的变量)
+// src/App.js - Admin Portal (V130 终极路由修复版)
 import React from 'react';
 import Layout from './components/Layout';
-// 🚩 移除: import { useTranslation } from 'react-i18next'; (这里用不到)
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+// 🚩 1. 引入 Navigate 组件
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import './App.css'; 
 import './i18n'; 
 
-// 导入页面
 import LoginPage from './pages/LoginPage';
 import SearchPage from './pages/SearchPage';
 import MemberPage from './pages/MemberPage';
@@ -16,7 +15,6 @@ import VoucherTypeAdminPage from './pages/admin/VoucherTypeAdminPage';
 import AnnouncementAdminPage from './pages/admin/AnnouncementAdminPage';
 import FinancialReportPage from './pages/admin/FinancialReportPage';
 
-// Layout Wrapper
 const LayoutWrapper = () => (
     <Layout>
         <Outlet />
@@ -24,8 +22,6 @@ const LayoutWrapper = () => (
 );
 
 function App() {
-  // 🚩 移除: const { t } = useTranslation(); (这里没用到 t)
-
   return (
     <BrowserRouter basename="/staff_portal">
       <Routes>
@@ -36,17 +32,17 @@ function App() {
         <Route path="/" element={<LayoutWrapper />}> 
             <Route index element={<SearchPage />} /> 
             <Route path="/search" element={<SearchPage />} /> 
-            
-            {/* 会员详情 */}
             <Route path="/member/:memberId" element={<MemberPage />} /> 
-            
-            {/* 商城管理 */}
             <Route path="/store/points" element={<PointsStoreAdminPage />} />
             <Route path="/store/balance" element={<BalanceStoreAdminPage />} />
             <Route path="/store/vouchertypes" element={<VoucherTypeAdminPage />} />
             <Route path="/announcements" element={<AnnouncementAdminPage />} />
             <Route path="/reports" element={<FinancialReportPage />} />
         </Route>
+
+        {/* 🚩 2. 核心修复：万能捕获路由 */}
+        {/* 任何未定义的路径，都强制跳转到登录页 */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
 
       </Routes>
     </BrowserRouter>
