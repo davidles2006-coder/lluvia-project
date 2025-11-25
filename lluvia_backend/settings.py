@@ -191,19 +191,22 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 # ... (settings.py 的其他内容) ...
 
 # ==============================================
-# 📧 邮件服务配置 (Gmail SMTP - SSL版)
+# 📧 邮件服务配置 (SendGrid - 生产环境版)
 # ==============================================
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp.sendgrid.net'  # SendGrid 的服务器地址
 
-# 🚩 改用 465 端口 (SSL)
-EMAIL_PORT = 465
+# 🚩 核心关键：DigitalOcean 封锁了 587，必须用 2525！
+EMAIL_PORT = 2525                 
 
-# 🚩 关闭 TLS，开启 SSL
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
+EMAIL_USE_TLS = True
 
-# 账号密码保持不变
-EMAIL_HOST_USER = 'lluviamembers@gmail.com'
-EMAIL_HOST_PASSWORD = 'wuuq ypni xyzs pwxt'
+# 🚩 用户名固定填 'apikey' (这是 SendGrid 的规定，不要填你的邮箱！)
+EMAIL_HOST_USER = 'apikey'
+
+# 🚩 密码填你刚才拿到的那一长串 Key
+EMAIL_HOST_PASSWORD = 'PUT_YOUR_SENDGRID_KEY_ON_SERVER'
+
+# 🚩 发件人必须是你刚才在 SendGrid 验证过的那个 Gmail
 DEFAULT_FROM_EMAIL = 'LLUVIA System <lluviamembers@gmail.com>'
