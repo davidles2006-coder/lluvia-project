@@ -113,36 +113,98 @@
   margin-right: 20px;
 }
 
-/* --- 📱 V131 修复: 手机端布局适配 --- */
+/* --- 📱 V132: 手机端汉堡菜单 & UI 瘦身 --- */
+
+/* 1. 默认隐藏手机元素 */
+.mobile-hamburger, .mobile-menu-dropdown {
+  display: none;
+}
+.desktop-links {
+  display: flex; gap: 20px;
+}
+
+/* 2. 手机端样式 (Max Width 768px) */
 @media (max-width: 768px) {
-  /* 1. 缩小导航栏内边距 */
-  .v11-navbar {
-    padding: 0 15px; 
-    height: 60px;
+  
+  /* A. 隐藏桌面元素 */
+  .desktop-links, .desktop-only {
+    display: none !important;
   }
 
-  /* 2. 缩小 Logo 大小 */
-  .v11-logo {
-    font-size: 20px;
-    margin-right: 10px;
-  }
-
-  /* 3. 🚩 核心修复: 缩小内容区边距 (防止出界) */
-  .v11-content {
-    padding: 15px; /* 从 40px 减到 15px */
-    width: 100%;
-    box-sizing: border-box; /* 确保 padding 不会撑爆宽度 */
-    overflow-x: hidden; /* 禁止横向滚动条 */
+  /* B. 显示汉堡按钮 */
+  .mobile-hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 25px;
+    height: 18px;
+    cursor: pointer;
+    z-index: 200;
   }
   
-  /* ✅ 推荐：允许导航链接横向滑动 */
-  .v11-nav-left {
-    overflow-x: auto; /* 允许滑动 */
-    white-space: nowrap; /* 强制一行 */
-    width: 100%; /* 占满宽度 */
-    padding-right: 20px; /* 防止贴边 */
+  .mobile-hamburger .bar {
+    width: 100%;
+    height: 2px;
+    background-color: #D4AF37;
+    transition: 0.3s;
+    border-radius: 2px;
+  }
+
+  /* 汉堡变叉叉动画 (可选) */
+  .mobile-hamburger .bar.open:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+  .mobile-hamburger .bar.open:nth-child(2) { opacity: 0; }
+  .mobile-hamburger .bar.open:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+  /* C. 下拉菜单容器 */
+  .mobile-menu-dropdown {
+    display: block;
+    position: absolute;
+    top: 60px; /* 导航栏高度 */
+    left: 0;
+    width: 100%;
+    background-color: rgba(30, 30, 30, 0.98); /* 深黑背景，略透明 */
+    border-bottom: 2px solid #D4AF37;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
     
-    /* 隐藏滚动条 */
-    scrollbar-width: none; 
+    /* 动画：默认收起 */
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease-in-out;
+    z-index: 100;
+  }
+
+  .mobile-menu-dropdown.show {
+    max-height: 300px; /* 展开高度 */
+  }
+
+  /* D. 菜单项样式 */
+  .mobile-link {
+    display: block;
+    padding: 15px 20px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    border-bottom: 1px solid #333;
+    transition: background 0.2s;
+  }
+  
+  .mobile-link:active {
+    background-color: #333;
+    color: #D4AF37;
+  }
+
+  .mobile-divider { border: 0; border-top: 1px solid #444; margin: 0; }
+  .mobile-link.logout { color: #e74c3c; }
+
+  /* E. 语言按钮瘦身 */
+  .compact-lang-switch button {
+    font-size: 12px !important; /* 缩小字体 */
+    padding: 5px 10px !important; /* 缩小内边距 */
+    height: 30px; /* 限制高度 */
+  }
+  
+  /* F. 内容区边距 */
+  .v11-content {
+    padding: 15px;
   }
 }
