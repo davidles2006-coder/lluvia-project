@@ -21,6 +21,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['206.189.157.1', 'localhost', '127.0.0.1', '.lluvia.app']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://lluvia.app',
+    'https://www.lluvia.app',
+]
+
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Application definition
 # --- 这是我们 V15 蓝图的修改 (步骤 11) ---
