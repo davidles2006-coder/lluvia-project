@@ -19,7 +19,7 @@ SECRET_KEY = 'django-insecure-@e%y7k_3q+8!z@b(b$p^q@m&f!j5(w*#_d&9v-8c(v+q_x#i_x
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['206.189.157.1', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['206.189.157.1', 'localhost', '127.0.0.1', '.lluvia.app']
 
 
 # Application definition
