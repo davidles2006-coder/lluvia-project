@@ -191,29 +191,19 @@ DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
 # ... (settings.py 的其他内容) ...
 
 # ==============================================
-# 📧 邮件服务配置 (Gmail SMTP)
+# 📧 邮件服务配置 (Gmail SMTP - SSL版)
 # ==============================================
-
-# 1. 使用 SMTP 后端
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-# 2. Gmail 服务器地址
 EMAIL_HOST = 'smtp.gmail.com'
 
-# 3. 端口 (TLS 通常用 587)
-EMAIL_PORT = 587
+# 🚩 改用 465 端口 (SSL)
+EMAIL_PORT = 465
 
-# 4. 开启安全连接
-EMAIL_USE_TLS = True
+# 🚩 关闭 TLS，开启 SSL
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 
-# 5. 你的 Gmail 账号 (发送方)
-# 🚩 请修改：填入你刚才登录 Google 的那个邮箱地址
+# 账号密码保持不变
 EMAIL_HOST_USER = 'lluviamembers@gmail.com'
-
-# 6. 你的应用专用密码 (钥匙)
-# 🚩 请修改：填入你刚刚生成的那个 16 位密码
-# (可以直接粘贴，带不带空格都没关系，放在引号里就行)
 EMAIL_HOST_PASSWORD = 'wuuq ypni xyzs pwxt'
-
-# 7. 默认发件人 (用户收到邮件时显示的名字)
 DEFAULT_FROM_EMAIL = 'LLUVIA System <lluviamembers@gmail.com>'
