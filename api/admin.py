@@ -1,27 +1,40 @@
 # 这是 api/admin.py 文件的内容
 
-from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from . import models # 从我们这个文件夹导入 models.py
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm # 导入 forms
+from .models import Member, Level, Voucher, VoucherType, Transaction, RechargeTier, Reward_Points_Store, Reward_Balance_Store, Announcement, FinancialLedger
+from django.contrib import admin
+from django.db import models
 
 # 
 # 1. 身份与权限 (V7)
 #
 @admin.register(models.Member)
+
+class MemberCreationForm(UserCreationForm):
+    class Meta:
+        model = Member
+        # 只包含我们需要的字段，明确移除 username
+        fields = ('email', 'phone', 'nickname', 'dob', 'is_staff')
+
+class MemberChangeForm(UserChangeForm):
+    class Meta:
+        model = Member
+        fields = ('email', 'phone', 'nickname', 'dob', 'is_staff')
+
 class MemberAdmin(BaseUserAdmin):
+    # 明确告诉 Django Admin 使用我们的自定义表单
+    form = MemberChangeForm
+    add_form = MemberCreationForm 
+    
     # 定义在列表页显示哪些字段
     list_display = ('email', 'nickname', 'phone', 'role', 'level', 'balance', 'is_staff', 'is_superuser')
-    
-    # 定义哪些字段可以点击进入编辑
     list_display_links = ('email', 'nickname')
-    
-    # 定义过滤器 (右侧侧边栏)
     list_filter = ('role', 'is_staff', 'is_superuser', 'level')
-    
-    # 定义搜索框能搜什么
     search_fields = ('email', 'phone', 'nickname')
+    ordering = ('email',)
     
-    # 详情页的字段排列
+    # 详情页的字段排列 (这里我们不用 fieldsets 来避免 username 冲突)
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('nickname', 'phone', 'dob', 'avatarUrl')}),
@@ -31,6 +44,14 @@ class MemberAdmin(BaseUserAdmin):
     )
     
     # 创建新用户页面的字段
+    add_fieldsets = (
+        (None, {
+            'classes': ('wide',),
+            # 这里的 fields 必须和 MemberCreationForm 匹配！
+            'fields': ('email', 'phone', 'nickname', 'dob', 'password', 'confirm_password'),
+        }),
+    )
+    # (如果 UserCreationForm 已经处理了 password2，则这里可以只写 password)
    
     
   
