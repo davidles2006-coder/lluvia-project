@@ -8,7 +8,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 
 import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
 
-const API_BASE_URL = `${API_ROOT}/api`; // 🚩 加上 /api/ 变成最终 API 地址
+const API_BASE_URL = API_ROOT; // 🚩 加上 /api/ 变成最终 API 地址
 
 function MemberLayout() {
   // 默认等级样式

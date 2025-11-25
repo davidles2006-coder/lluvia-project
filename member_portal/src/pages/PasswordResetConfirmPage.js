@@ -7,7 +7,7 @@ import '../pages/LoginPage.css';
 
 import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
 
-const API_BASE_URL = `${API_ROOT}/api`; // 🚩 加上 /api/ 变成最终 API 地址
+const API_BASE_URL = API_ROOT; // 🚩 加上 /api/ 变成最终 API 地址
 
 function PasswordResetConfirmPage() {
   const { uid, token } = useParams(); // 从 URL 获取 UID 和 Token
