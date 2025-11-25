@@ -1061,7 +1061,7 @@ class PasswordResetRequestView(APIView):
         token = default_token_generator.make_token(user)
 
         # 2. 生成前端重置链接 (注意端口是 3001!)
-        reset_link = f"http://127.0.0.1:3001/reset/{uid}/{token}"
+        reset_link = f"https://lluvia.app/reset/{uid}/{token}"
 
         # 3. 发送邮件
         subject = "LLUVIA Password Reset"
