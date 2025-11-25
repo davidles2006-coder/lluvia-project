@@ -34,7 +34,7 @@ class MemberAdmin(BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone', 'password', 'confirm_password'),
+            'fields': ('email', 'phone', 'password'),
         }),
     )
     
