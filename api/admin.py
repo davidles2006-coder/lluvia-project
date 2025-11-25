@@ -31,14 +31,9 @@ class MemberAdmin(BaseUserAdmin):
     )
     
     # 创建新用户页面的字段
-    add_fieldsets = (
-        (None, {
-            'classes': ('wide',),
-            'fields': ('email', 'phone', 'password'),
-        }),
-    )
+   
     
-    ordering = ('email',)
+  
 # 
 # 2. 忠诚度与社交 (V11/V12)
 #
