@@ -34,81 +34,92 @@ class MemberManager(BaseUserManager):
 
         return self.create_user(email, phone, password, **extra_fields)
 
+# api/models.py (完整的 Member 类，包含 V147 修复)
+
 class Member(AbstractBaseUser, PermissionsMixin):
     """
-    V15 蓝图的核心会员表
+    V147 终极版: 包含等级保护、法律证据和角色权限自动化
     """
     memberId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True) # V7 登录
-    phone = models.CharField(max_length=50, unique=True) # V7 后勤搜索
+    email = models.EmailField(unique=True) 
+    phone = models.CharField(max_length=50, unique=True) 
     nickname = models.CharField(max_length=100, blank=True)
-    dob = models.DateField(null=True, blank=True) # 出生日期
+    dob = models.DateField(null=True, blank=True) 
 
-    # 🚩 V73 新增: 法律证据字段
-    isTermsAgreed = models.BooleanField(default=False) # 是否点击了同意
-    termsAgreedTime = models.DateTimeField(null=True, blank=True) # 点击的具体时间
-
-    # V11 忠诚度核心
-    level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, blank=True) # 默认为等级 1 (Bronze)
-    loyaltyPoints = models.BigIntegerField(default=0) # V11 "货币"
-    lifetimePoints = models.BigIntegerField(default=0) # V11 "XP"
-
-    # V8 个性化
-    avatarUrl = models.URLField(max_length=1024, blank=True)
-    flair = models.CharField(max_length=100, blank=True)
-
-    # V12 社交
-    socialOptIn = models.BooleanField(default=False)
-
-    # V4 财务
-    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    balanceExpiryDate = models.DateField(null=True, blank=True)
-
-    # V7 语言
-    preferredLanguage = models.CharField(max_length=5, default='en')
-
-    # Django 必需字段
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False) # 后勤人员不能登录会员网页
-
-    createdAt = models.DateTimeField(auto_now_add=True)
-
-    # 指定管理器
-    objects = MemberManager()
-
-    USERNAME_FIELD = 'email' # 告诉 Django 用 email 登录
-    REQUIRED_FIELDS = ['phone', 'nickname'] # 创建超级用户时需要
-
-    # 🚩 V77 新增: 员工角色定义
+    # 🚩 V77: 员工角色定义 (用于 RBAC)
     ROLE_CHOICES = [
         ('CASHIER', '收银员'),
         ('STORE_MANAGER', '店长/运营'),
         ('ACCOUNT_MANAGER', '财务经理'),
-        ('SUPERUSER', '超级管理员'), # 虽然有 is_superuser，但加在这里方便前端判断
+        ('SUPERUSER', '超级管理员'),
     ]
-    
-    # 默认是收银员
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CASHIER')
 
-    # 🚩 V76 核心修复 1: 检查逻辑函数
-    # 🚩 V89 核心修复：防止自动降级
+    # V73: 法律证据字段
+    isTermsAgreed = models.BooleanField(default=False) 
+    termsAgreedTime = models.DateTimeField(null=True, blank=True) 
+
+    # V11: 忠诚度核心
+    level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, blank=True) 
+    loyaltyPoints = models.BigIntegerField(default=0) 
+    lifetimePoints = models.BigIntegerField(default=0) 
+
+    # V8/V12: 个性化与社交
+    avatarUrl = models.URLField(max_length=1024, blank=True)
+    flair = models.CharField(max_length=100, blank=True)
+    socialOptIn = models.BooleanField(default=False)
+
+    # V4: 财务
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    balanceExpiryDate = models.DateField(null=True, blank=True)
+
+    # Django 必需字段
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False) 
+    createdAt = models.DateTimeField(auto_now_add=True)
+
+    objects = MemberManager()
+
+    USERNAME_FIELD = 'email' 
+    REQUIRED_FIELDS = ['phone', 'nickname'] 
+    
+    # -----------------------------------------------
+    # 🚩 核心逻辑 Methods (V76 & V147)
+    # -----------------------------------------------
+
     def update_member_level(self):
+        # 1. 必须在函数内部导入 Level
         from .models import Level 
         
-        # 1. 计算"按积分理应所在的等级"
+        # 1.1. 如果当前没有 Level，先赋 Bronze
+        if not self.level:
+            try:
+                self.level = Level.objects.get(levelName='Bronze')
+            except Level.DoesNotExist:
+                 # 如果数据库里没有 Bronze 等级，则跳过，防止报错
+                return 
+
+        # 1.2. 根据当前积分，计算"理论上"应该是什么等级
         calculated_level = Level.objects.filter(
             minPoints__lte=self.lifetimePoints
         ).order_by('-minPoints').first()
 
         if calculated_level:
-            # 情况 A: 当前没有等级 -> 直接赋值
-            if not self.level:
+            # 1.3. 关键判断：只升不降 (防止促销获得的 Silver 被 0 分覆盖)
+            if calculated_level.minPoints > self.level.minPoints:
                 self.level = calculated_level
-            
-            # 情况 B: 当前有等级 -> 只有"新等级"比"旧等级"高级时，才升级！
-            # (防止充值送的 Silver 被积分为 0 的 Bronze 覆盖)
-            elif calculated_level.minPoints > self.level.minPoints:
-                self.level = calculated_level
+
+
+    def save(self, *args, **kwargs):
+        # 🚩 1. V147 新增: 自动赋予员工权限 (如果角色是 Staff/Manager)
+        if self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER', 'SUPERUSER']:
+            self.is_staff = True
+        
+        # 2. 自动更新等级 (只升不降)
+        self.update_member_level() 
+        
+        # 3. 保存到数据库
+        super().save(*args, **kwargs)
 # 
 # 2. 忠诚度与社交 (V11/V12)
 #
