@@ -135,8 +135,14 @@
     overflow-x: hidden; /* 禁止横向滚动条 */
   }
   
-  /* 隐藏某些不重要的导航链接 (可选) */
-  .v11-nav-left .link-independent:nth-child(n+3) {
-      display: none; /* 如果导航太挤，可以隐藏部分 */
+  /* ✅ 推荐：允许导航链接横向滑动 */
+  .v11-nav-left {
+    overflow-x: auto; /* 允许滑动 */
+    white-space: nowrap; /* 强制一行 */
+    width: 100%; /* 占满宽度 */
+    padding-right: 20px; /* 防止贴边 */
+    
+    /* 隐藏滚动条 */
+    scrollbar-width: none; 
   }
 }
