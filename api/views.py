@@ -412,8 +412,12 @@ class AdminMemberSearchView(APIView):
              return Response({'error': f'Database error: {str(e)}'
 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# api/views.py 中的 AdminRechargeView
+
 class AdminRechargeView(generics.GenericAPIView):
-    """ V4/V11 蓝图: 后勤代充值 (POST /api/admin/recharge/{memberId}/) """
+    """
+    V146 修复: 充值逻辑 (增加 None 等级保护)
+    """
     serializer_class = AdminRechargeSerializer
     permission_classes = [IsStaffUser]
 
@@ -428,45 +432,60 @@ class AdminRechargeView(generics.GenericAPIView):
             member = Member.objects.get(memberId=member_id)
             tier = RechargeTier.objects.get(id=tier_id) 
         except (Member.DoesNotExist, RechargeTier.DoesNotExist):
-            return Response({'error': 'Member or Recharge Tier not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Data not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        was_bronze = (member.level.levelName == 'Bronze')
-        first_recharge_bonus_applied = False
+        # 🚩 核心修复：安全地获取当前等级名称
+        # 如果 member.level 是 None (新号)，就当作 'Bronze' 处理，防止报错
+        if member.level:
+            current_level_name = member.level.levelName
+        else:
+            current_level_name = 'Bronze'
+
+        # 检查是否符合 "首充升级" (Bronze -> Silver)
+        upgraded_via_promo = False
+        if current_level_name == 'Bronze' and tier.amount >= 300:
+            try:
+                silver_level = Level.objects.get(levelName='Silver')
+                member.level = silver_level
+                upgraded_via_promo = True
+            except Level.DoesNotExist:
+                pass 
 
         try:
             with transaction.atomic():
+                # 1. 加钱
                 member.balance += tier.amount
                 member.balanceExpiryDate = timezone.now() + timezone.timedelta(days=365)
+                
+                # 2. 保存 (触发 models.py 里的只升不降逻辑)
+                member.save()
 
-                if was_bronze:
-                    silver_level = Level.objects.get(levelName='Silver')
-                    member.level = silver_level
-                    first_recharge_bonus_applied = True
-
+                # 3. 记账
                 Transaction.objects.create(
                     member=member,
                     staff=request.user,
                     type='RECHARGE',
                     amount=tier.amount,
-                    pointsEarned=0
+                    pointsEarned=0 
                 )
 
-                voucher_type = tier.grantVoucherType
-                for _ in range(tier.grantVoucherCount):
-                    Voucher.objects.create(
-                        member=member,
-                        voucherType=voucher_type,
-                    )
-
-                member.save()
-
+                # 4. 发券
+                if tier.grantVoucherType and tier.grantVoucherCount > 0:
+                    for _ in range(tier.grantVoucherCount):
+                        Voucher.objects.create(
+                            member=member,
+                            voucherType=tier.grantVoucherType,
+                        )
         except Exception as e:
+            # 打印错误到后台日志，方便排查
+            print(f"🔥 Recharge Error: {e}") 
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        msg = f'Successfully recharged ${tier.amount}.'
+        if upgraded_via_promo:
+            msg += ' (PROMO: Upgraded to Silver!)'
 
-        return Response({
-            'success': f'Successfully recharged ${tier.amount} for {member.nickname}.',
-            'first_recharge_bonus_applied': first_recharge_bonus_applied
-        }, status=status.HTTP_200_OK)
+        return Response({'success': msg}, status=status.HTTP_200_OK)
 
 
 class AdminConsumeView(generics.GenericAPIView):

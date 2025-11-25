@@ -24,6 +24,7 @@ function LoginPage() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    localStorage.clear();
     setError('');
     setIsLoading(true);
 
