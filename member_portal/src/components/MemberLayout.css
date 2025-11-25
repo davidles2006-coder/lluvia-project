@@ -112,3 +112,31 @@
   color: var(--color-gold);
   margin-right: 20px;
 }
+
+/* --- 📱 V131 修复: 手机端布局适配 --- */
+@media (max-width: 768px) {
+  /* 1. 缩小导航栏内边距 */
+  .v11-navbar {
+    padding: 0 15px; 
+    height: 60px;
+  }
+
+  /* 2. 缩小 Logo 大小 */
+  .v11-logo {
+    font-size: 20px;
+    margin-right: 10px;
+  }
+
+  /* 3. 🚩 核心修复: 缩小内容区边距 (防止出界) */
+  .v11-content {
+    padding: 15px; /* 从 40px 减到 15px */
+    width: 100%;
+    box-sizing: border-box; /* 确保 padding 不会撑爆宽度 */
+    overflow-x: hidden; /* 禁止横向滚动条 */
+  }
+  
+  /* 隐藏某些不重要的导航链接 (可选) */
+  .v11-nav-left .link-independent:nth-child(n+3) {
+      display: none; /* 如果导航太挤，可以隐藏部分 */
+  }
+}

@@ -317,3 +317,55 @@
 @media (max-width: 480px) {
   .v11-banner-item { flex: 0 0 85% !important; min-width: 85% !important; }
 }
+
+/* --- 📱 手机端深度适配 (Mobile Responsive) --- */
+@media (max-width: 768px) {
+  
+  /* 1. 强制变成单列布局 (上下排列) */
+  .v11-profile-grid { 
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  /* 2. 缩小卡片内边距 */
+  .v11-card, 
+  .v11-avatar-card, 
+  .v11-info-card {
+    padding: 20px; /* 从 30px 减到 20px */
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* 3. 信息列表改为单列 */
+  .v11-info-grid { 
+    grid-template-columns: 1fr; 
+    gap: 10px;
+  }
+  
+  .v11-info-header {
+    flex-direction: row; /* 标题和编辑按钮保持一行 */
+    justify-content: space-between;
+  }
+
+  /* 4. 🚩 Tabs 标签页优化 (防止挤在一起) */
+  .v11-tabs {
+    gap: 15px;
+    overflow-x: auto; /* 允许横向滑动 */
+    white-space: nowrap; /* 强制不换行 */
+    padding-bottom: 5px; /* 给滚动条留位置 */
+    margin-bottom: 20px;
+    border-bottom: 1px solid #444;
+  }
+  
+  .v11-tabs .link-independent {
+    font-size: 15px; /* 字体稍微改小 */
+    padding-bottom: 10px;
+    flex-shrink: 0; /* 防止被压缩 */
+  }
+
+  /* 5. 公告栏高度调整 */
+  .v11-banner-item {
+    height: 140px; /* 稍微变矮一点 */
+  }
+}
