@@ -1,8 +1,8 @@
-// src/pages/AnnouncementDetailPage.js - V140 视觉升级版
+// src/pages/AnnouncementDetailPage.js - V142 (修复 getImageUrl 未定义错误)
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import './AnnouncementDetailPage.css'; // 引入新样式
+import './AnnouncementDetailPage.css'; 
 import { API_BASE_URL as API_ROOT } from '../config';
 
 const API_BASE_URL = API_ROOT; 
@@ -34,27 +34,30 @@ function AnnouncementDetailPage() {
     fetchDetail();
   }, [id, navigate]);
 
+  // 🚩 核心修复：补回 helper 函数
+  const getImageUrl = (url) => {
+      if (!url) return null;
+      if (url.startsWith('http')) return url;
+      return `${API_BASE_URL}${url}`;
+  };
+
   if (loading) return <div style={{textAlign:'center', padding:'50px', color:'#fff'}}>{t('Loading...')}</div>;
   if (!announcement) return <div style={{textAlign:'center', padding:'50px', color:'#fff'}}>{t('Announcement not found')}</div>;
 
-  // 图片路径处理
- // ... 前面的代码不变 ...
-
-  // 🚩 V141 修复: 获取图片路径 (无论是 image 还是 imageUrl)
+  // 获取图片路径
   const imagePath = announcement.image || announcement.imageUrl;
 
   return (
     <div className="announcement-detail-container">
       <div className="announcement-card">
         
-        {/* 🚩 修复: 只要检测到有图片路径，就显示图片区域 */}
+        {/* 图片区域 */}
         {imagePath && (
           <div className="detail-image-wrapper">
              <img 
                src={getImageUrl(imagePath)} 
                alt={announcement.title} 
                className="detail-image"
-               // 添加错误处理，如果加载失败显示默认图
                onError={(e) => {e.target.style.display = 'none'}} 
              />
           </div>
@@ -64,7 +67,6 @@ function AnnouncementDetailPage() {
 
         <div className="detail-meta">
            {t('Announcement')}
-           {/* 如果有日期也可以显示 */}
            {announcement.expiryDate && ` | Valid until: ${new Date(announcement.expiryDate).toLocaleDateString()}`}
         </div>
 
