@@ -1,0 +1,82 @@
+/* src/pages/AnnouncementDetailPage.css - V140 黑金杂志风 */
+
+.announcement-detail-container {
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 0 20px;
+  color: #fff;
+}
+
+/* 核心内容卡片 */
+.announcement-card {
+  background-color: #1e1e1e;
+  border: 1px solid #D4AF37; /* 细金边 */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  padding: 30px;
+}
+
+/* 图片区域 */
+.detail-image-wrapper {
+  width: 100%;
+  margin-bottom: 25px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #333;
+}
+
+.detail-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* 标题 */
+.detail-title {
+  font-family: 'Merriweather', serif;
+  font-size: 28px;
+  color: #D4AF37;
+  margin-bottom: 15px;
+  text-align: center;
+  line-height: 1.4;
+}
+
+/* 日期/元数据 */
+.detail-meta {
+  text-align: center;
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+}
+
+/* 正文内容 */
+.detail-content {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #e0e0e0;
+  white-space: pre-wrap; /* 保留换行符 */
+  text-align: justify; /* 两端对齐 */
+}
+
+/* 返回按钮区域 */
+.detail-actions {
+  margin-top: 40px;
+  text-align: center;
+}
+
+/* 手机适配 */
+@media (max-width: 768px) {
+  .announcement-detail-container {
+    margin: 20px auto;
+  }
+  .announcement-card {
+    padding: 20px;
+  }
+  .detail-title {
+    font-size: 22px;
+  }
+}
