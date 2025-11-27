@@ -48,12 +48,13 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
     # 🚩 V77: 员工角色定义 (用于 RBAC)
     ROLE_CHOICES = [
+        ('MEMBER', '普通会员'),
         ('CASHIER', '收银员'),
         ('STORE_MANAGER', '店长/运营'),
         ('ACCOUNT_MANAGER', '财务经理'),
         ('SUPERUSER', '超级管理员'),
     ]
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='CASHIER')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='MEMBER')
 
     # V73: 法律证据字段
     isTermsAgreed = models.BooleanField(default=False) 
@@ -114,14 +115,15 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
 
     def save(self, *args, **kwargs):
-        # 🚩 1. V147 新增: 自动赋予员工权限 (如果角色是 Staff/Manager)
-        if self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER', 'SUPERUSER']:
-            self.is_staff = True
-        
-        # 2. 自动更新等级 (只升不降)
+        # 自动更新等级
         self.update_member_level() 
         
-        # 3. 保存到数据库
+        # 🚩 权限自动控制逻辑
+        if self.role == 'MEMBER':
+            self.is_staff = False  # 会员绝对不能是员工
+        elif self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER', 'SUPERUSER']:
+            self.is_staff = True   # 只有这些人才是员工
+        
         super().save(*args, **kwargs)
 # 
 # 2. 忠诚度与社交 (V11/V12)
