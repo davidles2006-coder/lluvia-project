@@ -38,42 +38,40 @@ function AnnouncementDetailPage() {
   if (!announcement) return <div style={{textAlign:'center', padding:'50px', color:'#fff'}}>{t('Announcement not found')}</div>;
 
   // 图片路径处理
-  const getImageUrl = (url) => {
-      if (!url) return null;
-      if (url.startsWith('http')) return url;
-      return `${API_BASE_URL}${url}`;
-  };
+ // ... 前面的代码不变 ...
+
+  // 🚩 V141 修复: 获取图片路径 (无论是 image 还是 imageUrl)
+  const imagePath = announcement.image || announcement.imageUrl;
 
   return (
     <div className="announcement-detail-container">
       <div className="announcement-card">
         
-        {/* 1. 图片 */}
-        {announcement.image && (
+        {/* 🚩 修复: 只要检测到有图片路径，就显示图片区域 */}
+        {imagePath && (
           <div className="detail-image-wrapper">
              <img 
-               src={getImageUrl(announcement.imageUrl || announcement.image)} 
+               src={getImageUrl(imagePath)} 
                alt={announcement.title} 
                className="detail-image"
+               // 添加错误处理，如果加载失败显示默认图
+               onError={(e) => {e.target.style.display = 'none'}} 
              />
           </div>
         )}
 
-        {/* 2. 标题 */}
         <h1 className="detail-title">{announcement.title}</h1>
 
-        {/* 3. 日期 (如果有的话，没有就不显示) */}
         <div className="detail-meta">
            {t('Announcement')}
+           {/* 如果有日期也可以显示 */}
+           {announcement.expiryDate && ` | Valid until: ${new Date(announcement.expiryDate).toLocaleDateString()}`}
         </div>
 
-        {/* 4. 正文内容 */}
         <div className="detail-content">
-            {/* 如果没有 content 字段，显示默认文字 */}
-            {announcement.content || t('No details available.')}
+            {announcement.content || announcement.description || t('No details available.')}
         </div>
 
-        {/* 5. 返回按钮 */}
         <div className="detail-actions">
             <button className="btn-pill" onClick={() => navigate(-1)}>
                 {t('Back')}
