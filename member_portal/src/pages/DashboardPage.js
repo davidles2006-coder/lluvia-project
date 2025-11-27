@@ -1,4 +1,4 @@
-// src/pages/DashboardPage.js - V108 (最终核准完整版)
+// src/pages/DashboardPage.js - V161 (权益弹窗完整版)
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next'; 
@@ -8,9 +8,9 @@ import defaultAvatar from '../assets/default_avatar.png';
 import defaultBanner from '../assets/default_avatar.png'; 
 import './LoginPage.css'; 
 
-import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
+import { API_BASE_URL as API_ROOT } from '../config'; 
 
-const API_BASE_URL = API_ROOT; // 🚩 加上 /api/ 变成最终 API 地址
+const API_BASE_URL = API_ROOT; 
 
 function DashboardPage() {
   // --- State 定义 ---
@@ -25,7 +25,9 @@ function DashboardPage() {
   const { t } = useTranslation(); 
 
   // --- 弹窗 State ---
-  const [showModal, setShowModal] = useState(false);
+  const [showModal, setShowModal] = useState(false); // 编辑资料
+  const [showBenefits, setShowBenefits] = useState(false); // 🚩 新增: 权益弹窗
+
   const [editForm, setEditForm] = useState({ nickname: '', phone: '', dob: '', email: '', password: '' });
   const [avatarFile, setAvatarFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null); 
@@ -87,13 +89,14 @@ function DashboardPage() {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'profile':
-        return <ProfileTab userData={userData} t={t} onEditClick={openEditModal} levelClass={levelClass} />; 
+        // 🚩 传入 setShowBenefits 给 ProfileTab
+        return <ProfileTab userData={userData} t={t} onEditClick={openEditModal} levelClass={levelClass} onShowBenefits={() => setShowBenefits(true)} />; 
       case 'vouchers':
         return <VouchersTab vouchers={vouchers} t={t} levelClass={levelClass} />; 
       case 'transactions':
         return <TransactionsTab transactions={transactions} t={t} levelClass={levelClass} />; 
       default:
-        return <ProfileTab userData={userData} t={t} onEditClick={openEditModal} levelClass={levelClass} />;
+        return <ProfileTab userData={userData} t={t} onEditClick={openEditModal} levelClass={levelClass} onShowBenefits={() => setShowBenefits(true)} />;
     }
   };
 
@@ -122,15 +125,15 @@ function DashboardPage() {
            </div>
            <div className="v11-announcements-section">
              {announcements.map((ann) => (
-               <div key={ann.id} className="v11-banner-item" style={{position: 'relative', flex: '0 0 85%', height: '160px', backgroundColor: '#000', borderRadius: '12px', overflow: 'hidden', border: '1px solid #444', display: 'flex', alignItems: 'center', justifyContent: 'center', scrollSnapAlign: 'center'}}>
+               <div key={ann.id} className="v11-banner-item">
                  {ann.actionUrl ? (
                    <a href={ann.actionUrl} target="_blank" rel="noopener noreferrer" style={{display: 'block', width: '100%', height: '100%', textDecoration: 'none', position: 'relative'}}>
-                      <img src={getBannerUrl(ann.imageUrl || ann.image)} alt={ann.title} className="v11-banner-img" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      <img src={getBannerUrl(ann.imageUrl || ann.image)} alt={ann.title} className="v11-banner-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div className="v11-banner-caption">{ann.title}</div>
                    </a>
                  ) : (
                    <Link to={`/member/announcement/${ann.id}`} style={{display: 'block', width: '100%', height: '100%', textDecoration: 'none', position: 'relative'}}>
-                      <img src={getBannerUrl(ann.imageUrl || ann.image)} alt={ann.title} className="v11-banner-img" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                      <img src={getBannerUrl(ann.imageUrl || ann.image)} alt={ann.title} className="v11-banner-img" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       <div className="v11-banner-caption">{ann.title}</div>
                    </Link>
                  )}
@@ -163,6 +166,53 @@ function DashboardPage() {
           </div>
         </div>
       )}
+
+      {/* 🚩 核心修复: 会员权益说明弹窗 (V161) */}
+      {showBenefits && (
+        <div className="v11-modal-overlay" onClick={() => setShowBenefits(false)}>
+          <div className="v11-modal-content" onClick={e => e.stopPropagation()} style={{maxHeight: '80vh', overflowY: 'auto'}}>
+            <h3 className="v11-modal-title" style={{color:'#D4AF37', borderBottom:'2px solid #D4AF37', paddingBottom:'10px', marginBottom:'20px'}}>
+               {t('Member Benefits')}
+            </h3>
+            
+            <div style={{textAlign: 'left', color: '#e0e0e0', lineHeight: '1.8', fontSize:'14px'}}>
+              
+              {/* 1. 充值福利 */}
+              <h4 style={{color:'#fff', fontSize:'16px', margin:'20px 0 10px 0'}}>💰 {t('Recharge Privileges')}</h4>
+              <ul style={{paddingLeft:'20px', color:'#ccc'}}>
+                <li style={{marginBottom:'5px'}}>{t('Recharge Rule 1')}</li>
+                <li style={{marginBottom:'5px'}}>{t('Recharge Rule 2')}</li>
+                <li style={{marginBottom:'5px'}}>{t('Recharge Rule 3')}</li>
+              </ul>
+
+              {/* 2. 消费特权 */}
+              <h4 style={{color:'#fff', fontSize:'16px', margin:'20px 0 10px 0'}}>💳 {t('Spending Privileges')}</h4>
+              <ul style={{paddingLeft:'20px', color:'#ccc'}}>
+                <li style={{marginBottom:'5px'}}>{t('Balance Discount')}</li>
+                <li style={{marginBottom:'5px'}}>{t('Voucher Rule')}</li>
+              </ul>
+
+              {/* 3. 积分加速 */}
+              <h4 style={{color:'#fff', fontSize:'16px', margin:'20px 0 10px 0'}}>🚀 {t('Level Multiplier')}</h4>
+              <p style={{color:'#888', marginBottom:'5px', fontStyle:'italic'}}>{t('Points Explain')}</p>
+              
+              <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'8px', background:'#111', padding:'15px', borderRadius:'8px', border:'1px solid #333'}}>
+                <div style={{color:'#cd7f32', fontWeight:'bold'}}>Bronze: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Bronze Speed')}</span></div>
+                <div style={{color:'#C0C0C0', fontWeight:'bold'}}>Silver: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Silver Speed')}</span></div>
+                <div style={{color:'#D4AF37', fontWeight:'bold'}}>Gold: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Gold Speed')}</span></div>
+                <div style={{color:'#e5e4e2', fontWeight:'bold'}}>Platinum: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Platinum Speed')}</span></div>
+                <div style={{color:'#b9f2ff', fontWeight:'bold'}}>Diamond: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Diamond Speed')}</span></div>
+              </div>
+            </div>
+
+            <div className="v11-modal-actions" style={{marginTop:'30px'}}>
+              <button className="btn-pill" onClick={() => setShowBenefits(false)} style={{width:'100%', fontWeight:'bold'}}>
+                {t('Close')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -172,11 +222,10 @@ function DashboardPage() {
 // ==================================================
 
 // 1. ProfileTab
-const ProfileTab = ({ userData, t, onEditClick, levelClass }) => { 
+const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) => { 
   const userLevel = userData.level ? userData.level.levelName : 'Bronze';
   const points = userData.lifetimePoints || 0;
   
-  // 动态积分逻辑
   let nextLevelPoints = 500; let isMaxLevel = false; let nextLevelName = 'Silver';
   if (points >= 6000) { nextLevelPoints = 6000; isMaxLevel = true; nextLevelName = 'Max'; } 
   else if (points >= 3000) { nextLevelPoints = 6000; nextLevelName = 'Diamond'; } 
@@ -184,14 +233,11 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass }) => {
   else if (points >= 500) { nextLevelPoints = 1500; nextLevelName = 'Gold'; }
   
   const progressPercent = isMaxLevel ? 100 : Math.min((points / nextLevelPoints) * 100, 100);
-  
-  // 动画 State
   const [animatedWidth, setAnimatedWidth] = useState(0);
   useEffect(() => { setTimeout(() => setAnimatedWidth(progressPercent), 100); }, [progressPercent]);
 
   return (
     <div className="v11-profile-grid">
-      {/* 头像卡: 加上 levelClass-frame */}
       <div className={`v11-card v11-avatar-card level-${levelClass}-frame`}>
         <div className="v11-avatar-wrapper">
           <img src={userData.avatarUrl ? userData.avatarUrl : defaultAvatar} onError={(e)=>{e.target.onerror=null;e.target.src=defaultAvatar}} alt="Avatar" className="v11-avatar" />
@@ -201,12 +247,22 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass }) => {
         <span className={`v11-level-badge level-badge-${levelClass}`}>{t(userLevel)}</span>
       </div>
 
-      {/* 资料卡: 加上 levelClass-frame */}
       <div className={`v11-card v11-info-card level-${levelClass}-frame`}>
         <div className="v11-info-header"><h4>{t('My Profile')}</h4><button className="btn-ghost" onClick={onEditClick}>{t('Edit Profile')}</button></div>
         <div className="v11-info-grid"><div><strong>{t('Email')}:</strong> {userData.email}</div><div><strong>{t('Phone')}:</strong> {userData.phone || 'N/A'}</div><div><strong>{t('Birthday')}:</strong> {userData.dob || 'N/A'}</div><div><strong>{t('Balance')}:</strong> ${userData.balance || '0.00'}</div><div><strong>{t('Available Points')}:</strong> {userData.loyaltyPoints || 0}</div></div>
         <hr className="v11-divider" />
-        <h4>{t('Points Progress')} { !isMaxLevel && `(${t('Next')}: ${t(nextLevelName)})` }</h4>
+        
+        {/* 🚩 权益按钮在这里 */}
+        <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
+            <h4 style={{margin:0}}>{t('Points Progress')} { !isMaxLevel && `(${t('Next')}: ${t(nextLevelName)})` }</h4>
+            <button 
+                onClick={onShowBenefits}
+                style={{fontSize:'13px', color:'#D4AF37', background:'none', border:'none', cursor:'pointer', textDecoration:'underline', fontWeight:'bold'}}
+            >
+                💎 {t('View Benefits')}
+            </button>
+        </div>
+
         <div className="v11-progress-bar"><div className="v11-progress-fill" style={{ width: `${animatedWidth}%` }}></div></div>
         <div className="v11-progress-text">{isMaxLevel ? <span>{points} {t('Points (Total XP)')} - {t('Max Level Reached')}</span> : <span>{points} / {nextLevelPoints} {t('Points (Total XP)')}</span>}</div>
       </div>
@@ -214,89 +270,49 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass }) => {
   );
 };
 
-// src/pages/DashboardPage.js 中的 VouchersTab 组件
-
-// src/pages/DashboardPage.js (只替换底部的两个子组件)
-
-// 2. VouchersTab (添加了 v11-scroll-box)
+// 2. VouchersTab (保持不变)
 const VouchersTab = ({ vouchers, t, levelClass }) => { 
   return (
     <div className={`v11-card level-${levelClass}-frame`}>
       <h4 style={{marginTop:0, marginBottom:'20px', color:'#D4AF37'}}>{t('My Vouchers')}</h4>
-      
       {vouchers && vouchers.length > 0 ? (
-        // 🚩 修复: 添加 v11-scroll-box 类名
         <div className="v11-store-grid v11-scroll-box"> 
           {vouchers.map((v) => (
              <div className="v11-voucher-ticket" key={v.voucherId}>
                 <div className="ticket-header">
                     <h3 className="ticket-title">{v.voucherType.name}</h3>
-                    <div className="ticket-value">
-                         {parseFloat(v.voucherType.value) > 0 ? `$${v.voucherType.value}` : 'GIFT'}
-                    </div>
+                    <div className="ticket-value">{parseFloat(v.voucherType.value) > 0 ? `$${v.voucherType.value}` : 'GIFT'}</div>
                 </div>
                 <div className="ticket-divider"></div>
                 <div className="ticket-body">
                     <p><strong>{t('Expires')}:</strong> {new Date(v.expiryDate).toLocaleDateString()}</p>
-                    <div className={`ticket-status status-${v.status}`}>
-                        {v.status === 'unused' ? t('Unused') : v.status}
-                    </div>
+                    <div className={`ticket-status status-${v.status}`}>{v.status === 'unused' ? t('Unused') : v.status}</div>
                 </div>
              </div>
           ))}
         </div>
       ) : (
-        <div>
-            <p>{t('No vouchers available.')}</p>
-            <Link to="/member/points-store" className="btn-pill" style={{marginTop: '20px'}}>{t('Browse Store')}</Link>
-        </div>
+        <div><p>{t('No vouchers available.')}</p><Link to="/member/points-store" className="btn-pill" style={{marginTop: '20px'}}>{t('Browse Store')}</Link></div>
       )}
     </div>
   );
 };
 
-// 3. TransactionsTab (添加了 v11-scroll-box)
+// 3. TransactionsTab (保持不变)
 const TransactionsTab = ({ transactions, t, levelClass }) => {
   return (
     <div className={`v11-card level-${levelClass}-frame`}>
       <h4 style={{marginTop:0, marginBottom:'20px', color:'#D4AF37'}}>{t('My Transactions')}</h4>
-      
       {transactions && transactions.length > 0 ? (
-        // 🚩 修复: 添加 v11-scroll-box 类名，并移除原来的内联 display:flex
         <div className="v11-scroll-box" style={{display: 'flex', flexDirection: 'column', gap: '15px'}}>
           {transactions.map((txn, index) => {
             const isPositive = parseFloat(txn.amount) > 0;
             const amountColor = isPositive ? '#2ecc71' : (parseFloat(txn.amount) < 0 ? '#e74c3c' : '#ccc');
             const sign = isPositive ? '+' : '';
-
             return (
-              <div key={index} style={{
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'center', 
-                  borderBottom: '1px solid #444', 
-                  paddingBottom: '15px',
-                  marginRight: '10px' /* 给滚动条留点空隙 */
-              }}>
-                <div>
-                  <div style={{color: '#fff', fontWeight: 'bold', fontSize: '16px'}}>
-                    {t(txn.type)}
-                  </div>
-                  <div style={{color: '#888', fontSize: '12px', marginTop: '5px'}}>
-                    {new Date(txn.timestamp).toLocaleString('zh-CN', { timeZone: 'Asia/Singapore', hour12: false })}
-                  </div>
-                </div>
-                
-                <div style={{textAlign: 'right'}}>
-                  <div style={{color: amountColor, fontWeight: 'bold', fontSize: '18px'}}>
-                    {sign}${txn.amount}
-                  </div>
-                  {txn.pointsEarned !== 0 && (
-                    <div style={{color: '#D4AF37', fontSize: '12px', marginTop: '5px'}}>
-                      {txn.pointsEarned > 0 ? '+' : ''}{txn.pointsEarned} Pts
-                    </div>
-                  )}
-                </div>
+              <div key={index} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #444', paddingBottom: '15px', marginRight:'5px'}}>
+                <div><div style={{color: '#fff', fontWeight: 'bold', fontSize: '16px'}}>{t(txn.type)}</div><div style={{color: '#888', fontSize: '12px', marginTop: '5px'}}>{new Date(txn.timestamp).toLocaleString('zh-CN', { timeZone: 'Asia/Singapore', hour12: false })}</div></div>
+                <div style={{textAlign: 'right'}}><div style={{color: amountColor, fontWeight: 'bold', fontSize: '18px'}}>{sign}${txn.amount}</div>{txn.pointsEarned !== 0 && (<div style={{color: '#D4AF37', fontSize: '12px', marginTop: '5px'}}>{txn.pointsEarned > 0 ? '+' : ''}{txn.pointsEarned} Pts</div>)}</div>
               </div>
             );
           })}

@@ -123,7 +123,29 @@
     "password_mismatch": "Passwords do not match.",
     "reset_success": "Password reset successfully! Redirecting to login...",
     "reset_failed": "Reset failed. Link may be invalid or expired."
-  }
+  },
+
+  "Member Benefits": "Member Benefits",
+  "View Benefits": "View Benefits",
+  
+  "Recharge Privileges": "💰 Recharge Bonuses",
+  "Recharge Rule 1": "Recharge $300: Get 3x $50 Vouchers + Instant Upgrade to Silver!",
+  "Recharge Rule 2": "Recharge $500: Get 5x $50 Vouchers",
+  "Recharge Rule 3": "Recharge $1000: Get 10x $50 Vouchers",
+  
+  "Spending Privileges": "💳 Spending & Discounts",
+  "Balance Discount": "Pay with Balance: Automatic 10% OFF.",
+  "Voucher Rule": "Vouchers: Use one $50 voucher for every $180 spent.",
+  
+  "Level Multiplier": "🚀 Points Accelerator",
+  "Points Explain": "Earn points for every $1 actual spent:",
+  "Bronze Speed": "1.0x (Base)",
+  "Silver Speed": "1.5x",
+  "Gold Speed": "2.0x",
+  "Platinum Speed": "2.5x",
+  "Diamond Speed": "3.0x (Triple!)",
+  
+  "Close": "Close"
 
 
 
