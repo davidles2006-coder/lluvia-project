@@ -73,6 +73,9 @@ class Member(AbstractBaseUser, PermissionsMixin):
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     balanceExpiryDate = models.DateField(null=True, blank=True)
 
+    # 补回丢失的字段，并允许为空
+    preferredLanguage = models.CharField(max_length=5, default='en', null=True, blank=True)
+
     # Django 必需字段
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False) 
