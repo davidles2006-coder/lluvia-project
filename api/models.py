@@ -91,25 +91,33 @@ class Member(AbstractBaseUser, PermissionsMixin):
     # 🚩 核心逻辑 Methods (V76 & V147)
     # -----------------------------------------------
 
+    # api/models.py -> Member 类 -> update_member_level 方法
+
     def update_member_level(self):
-        # 1. 必须在函数内部导入 Level
         from .models import Level 
         
-        # 1.1. 如果当前没有 Level，先赋 Bronze
+        # 🚩 V161 修复: 员工不需要等级
+        # 如果角色不是普通会员 (即是员工)，强制清空等级，并直接结束
+        if self.role != 'MEMBER':
+            self.level = None
+            return
+
+        # --- 以下是针对 MEMBER (普通会员) 的正常逻辑 ---
+
+        # 1. 如果当前没有 Level，先赋 Bronze
         if not self.level:
             try:
                 self.level = Level.objects.get(levelName='Bronze')
             except Level.DoesNotExist:
-                 # 如果数据库里没有 Bronze 等级，则跳过，防止报错
                 return 
 
-        # 1.2. 根据当前积分，计算"理论上"应该是什么等级
+        # 2. 根据积分计算等级
         calculated_level = Level.objects.filter(
             minPoints__lte=self.lifetimePoints
         ).order_by('-minPoints').first()
 
         if calculated_level:
-            # 1.3. 关键判断：只升不降 (防止促销获得的 Silver 被 0 分覆盖)
+            # 3. 只升不降保护
             if calculated_level.minPoints > self.level.minPoints:
                 self.level = calculated_level
 
