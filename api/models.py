@@ -122,16 +122,27 @@ class Member(AbstractBaseUser, PermissionsMixin):
                 self.level = calculated_level
 
 
+    # api/models.py -> Member 类 -> save 方法
+
     def save(self, *args, **kwargs):
-        # 自动更新等级
+        # 1. 自动更新等级
         self.update_member_level() 
         
-        # 🚩 权限自动控制逻辑
-        if self.role == 'MEMBER':
-            self.is_staff = False  # 会员绝对不能是员工
-        elif self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER', 'SUPERUSER']:
-            self.is_staff = True   # 只有这些人才是员工
+        # 2. 🚩 核心修复：权限自动控制逻辑
+        # 如果是超级管理员，强制赋予 Staff 权限 (防止被误伤)
+        if self.is_superuser:
+            self.is_staff = True
+            # 可选：如果老板还是默认的 MEMBER 角色，自动修正为 SUPERUSER
+            if self.role == 'MEMBER':
+                self.role = 'SUPERUSER'
+
+        # 普通逻辑：根据角色判断
+        elif self.role == 'MEMBER':
+            self.is_staff = False
+        elif self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER']:
+            self.is_staff = True
         
+        # 3. 保存
         super().save(*args, **kwargs)
 # 
 # 2. 忠诚度与社交 (V11/V12)
