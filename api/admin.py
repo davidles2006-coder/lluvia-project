@@ -30,6 +30,7 @@ class MemberChangeForm(UserChangeForm):
 # -----------------------------------------------------------
 # 2. Member Admin 配置
 # -----------------------------------------------------------
+# 2. Member Admin 配置
 @admin.register(Member)
 class MemberAdmin(BaseUserAdmin):
     # 指定表单
@@ -51,15 +52,14 @@ class MemberAdmin(BaseUserAdmin):
         ('Legal', {'fields': ('isTermsAgreed', 'termsAgreedTime')}),
     )
 
-    # 🚩 核心修复：添加新用户页面的布局
-    # 必须使用 'password' 和 'password_2' (这是 Django 默认的字段名)
+    # 🚩 核心修复：删除 'password_2'
+    # (只写 'password' 即可，UserCreationForm 会自动显示两个密码框)
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone', 'role', 'is_staff', 'password', 'password_2'),
+            'fields': ('email', 'phone', 'role', 'is_staff', 'password'), 
         }),
     )
-
 # -----------------------------------------------------------
 # 3. 其他模型注册 (保持不变)
 # -----------------------------------------------------------
