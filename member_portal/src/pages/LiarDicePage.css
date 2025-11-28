@@ -1,8 +1,7 @@
-/* src/pages/LiarDicePage.css - V172 高级黑金版 */
+/* src/pages/LiarDicePage.css - V173 真实骰子版 */
 
 .dice-container {
   min-height: 90vh;
-  /* 模拟高级黑色绒布桌台背景 */
   background: radial-gradient(circle at center, #2a2a2a 0%, #000000 100%);
   display: flex;
   flex-direction: column;
@@ -17,49 +16,38 @@
   width: 100%;
   display: flex;
   justify-content: space-between;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   font-family: 'Courier New', monospace;
-  opacity: 0.7;
+  opacity: 0.8;
+  font-size: 14px;
 }
 
-.dice-title {
-  font-family: serif;
-  color: #D4AF37; /* 香槟金 */
-  margin-bottom: 50px;
-  font-size: 32px;
-  letter-spacing: 2px;
-  text-shadow: 0 2px 10px rgba(212, 175, 55, 0.4);
+.round-badge { 
+  color: #D4AF37; 
+  border: 1px solid #D4AF37; 
+  padding: 4px 10px; 
+  border-radius: 20px; 
+  background: rgba(212, 175, 55, 0.1);
 }
 
-/* --- 骰盅底座 (打开时看到的内部) --- */
+/* 骰盅区域 */
 .dice-cup-area {
   width: 280px;
   height: 280px;
   position: relative;
   border-radius: 50%;
-  
-  /* 内部深邃感 */
   background: radial-gradient(circle, #000 30%, #1a1a1a 100%);
-  /* 厚实的边缘 */
   border: 8px solid #333;
-  box-shadow: 
-    inset 0 0 30px #000, /* 内部阴影 */
-    0 10px 30px rgba(0,0,0,0.8); /* 外部投影 */
-    
+  box-shadow: inset 0 0 30px #000, 0 10px 30px rgba(0,0,0,0.8);
   display: flex;
   justify-content: center;
   align-items: center;
   margin-bottom: 40px;
   cursor: pointer;
-  
-  /* 消除点击闪烁 */
   -webkit-tap-highlight-color: transparent;
 }
 
-/* 摇动动画 */
-.dice-cup-area.shaking {
-  animation: shake-hard 0.5s infinite;
-}
+.dice-cup-area.shaking { animation: shake-hard 0.5s infinite; }
 
 @keyframes shake-hard {
   0% { transform: translate(0, 0) rotate(0deg); }
@@ -70,146 +58,80 @@
   100% { transform: translate(0, 0) rotate(0deg); }
 }
 
-/* --- 骰盅盖子 (核心视觉) --- */
+/* 骰盅盖子 */
 .dice-cup-cover {
   position: absolute;
-  top: -8px; left: -8px; right: -8px; bottom: -8px; /* 盖住边框 */
+  top: -8px; left: -8px; right: -8px; bottom: -8px;
   border-radius: 50%;
-  
-  /* 模拟黑色磨砂金属质感 */
   background: linear-gradient(145deg, #2b2b2b, #141414);
-  box-shadow: 
-    inset 2px 2px 5px rgba(255,255,255,0.1),
-    inset -2px -2px 10px rgba(0,0,0,0.8),
-    0 15px 35px rgba(0,0,0,0.6);
-    
+  box-shadow: inset 2px 2px 5px rgba(255,255,255,0.1), 0 15px 35px rgba(0,0,0,0.6);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   z-index: 10;
-  
-  /* 提盖动画 */
   transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform-origin: top center;
 }
 
-/* 盖子打开状态: 向上移动并淡出 */
 .dice-cup-cover.hidden {
   opacity: 0;
   transform: translateY(-80px) scale(0.9);
   pointer-events: none;
 }
 
-/* 盖子顶部的把手 (拟物化) */
 .cup-handle-outer {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #D4AF37, #8a7018); /* 金色 */
+  width: 80px; height: 80px; border-radius: 50%;
+  background: linear-gradient(145deg, #D4AF37, #8a7018);
   box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 15px;
-  border: 2px solid #5e4b0e;
+  margin-bottom: 15px; border: 2px solid #5e4b0e;
 }
 
-.cup-handle-inner {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, #ffecb3, #D4AF37);
-  box-shadow: inset 0 0 10px rgba(0,0,0,0.3);
-}
+.cup-logo { font-size: 24px; color: #888; font-weight: bold; letter-spacing: 4px; text-shadow: 0 -1px 0 #000; }
+.cup-hint { color: #555; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
 
-.cup-logo {
-  font-size: 24px;
-  color: #888;
-  font-weight: bold;
-  letter-spacing: 4px;
-  text-shadow: 0 -1px 0 #000;
-  margin-bottom: 5px;
-}
-
-.cup-hint {
-  color: #555;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-}
-
-/* --- 骰子 (Dice) --- */
+/* --- 🎲 真实骰子样式 (CSS Draw) --- */
 .dice-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
-  /* 让骰子稍微乱一点，不要排得太整齐 */
-  transform: rotate(10deg); 
+  transform: rotate(10deg); /* 整体微斜 */
 }
 
-.single-dice {
+.real-dice {
   width: 50px;
   height: 50px;
-  font-size: 55px;
-  line-height: 50px;
-  background: #eee;
-  color: #000;
-  border-radius: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  
-  /* 3D 立体阴影 */
-  box-shadow: 
-    inset 0 0 5px rgba(0,0,0,0.1),
-    3px 3px 0px #bbb, /* 侧面厚度 */
-    5px 5px 10px rgba(0,0,0,0.5); /* 投影 */
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1), 3px 3px 0 #ccc, 5px 5px 10px rgba(0,0,0,0.5);
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  padding: 4px;
+  box-sizing: border-box;
 }
 
-/* 红色点数 */
-.dice-val-1, .dice-val-4 { color: #d00; }
-
-/* 随机微调每个骰子的角度 (让它们看起来是扔出来的) */
-.single-dice:nth-child(1) { transform: rotate(-15deg); }
-.single-dice:nth-child(2) { transform: rotate(5deg); }
-.single-dice:nth-child(3) { transform: rotate(20deg); }
-.single-dice:nth-child(4) { transform: rotate(-5deg); }
-.single-dice:nth-child(5) { transform: rotate(10deg); }
-
-
-/* --- 按钮区域 --- */
-.status-text {
-  min-height: 30px;
-  font-size: 18px;
-  margin-bottom: 30px;
-  text-align: center;
-  font-weight: bold;
-  color: #D4AF37;
+/* 骰子点 (Pip) */
+.pip {
+  background-color: #000;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.3); /* 点的凹陷感 */
+  align-self: center;
+  justify-self: center;
+  width: 8px;
+  height: 8px;
 }
 
-.big-btn {
-  font-size: 20px !important;
-  padding: 18px 60px !important;
-  border-radius: 50px !important;
-  /* 金色渐变按钮 */
-  background: linear-gradient(180deg, #D4AF37 0%, #AA8A26 100%) !important;
-  color: #000 !important;
-  border: 1px solid #FFE082 !important;
-  box-shadow: 0 5px 20px rgba(212, 175, 55, 0.3);
-  transition: transform 0.1s;
-}
+/* 1点和4点是红色的 (亚洲规则) */
+.dice-1 .pip, .dice-4 .pip { background-color: #d00; }
+/* 1点的大圆点 */
+.dice-1 .pip { width: 14px; height: 14px; }
 
-.big-btn:active {
-  transform: scale(0.95);
-}
+/* 随机旋转每个骰子 */
+.real-dice:nth-child(1) { transform: rotate(-10deg); }
+.real-dice:nth-child(2) { transform: rotate(15deg); }
+.real-dice:nth-child(3) { transform: rotate(-5deg); }
+.real-dice:nth-child(4) { transform: rotate(20deg); }
+.real-dice:nth-child(5) { transform: rotate(-15deg); }
 
-.link-text {
-  background: none;
-  border: none;
-  color: #666;
-  text-decoration: none;
-  cursor: pointer;
-  font-size: 14px;
-  border-bottom: 1px dashed #666;
-}
+.status-text { color: #D4AF37; margin-bottom: 30px; font-size: 18px; font-weight: bold; min-height: 27px;}
+.big-btn { font-size: 20px !important; padding: 15px 50px !important; background: #D4AF37 !important; color: #000 !important; border-radius: 50px !important; box-shadow: 0 0 20px rgba(212, 175, 55, 0.3); }
+.link-text { background: none; border: none; color: #666; text-decoration: underline; cursor: pointer; font-size: 14px; }

@@ -1,30 +1,46 @@
-// src/pages/LiarDicePage.js - V171 (大话骰完整版)
+// src/pages/LiarDicePage.js - V173
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next'; // 引入翻译
+import { useTranslation } from 'react-i18next';
 import './LiarDicePage.css';
 
-// 骰子点数显示 (使用 Unicode 字符，简单直接)
-const DICE_ICONS = {
-  1: '⚀', 2: '⚁', 3: '⚂', 4: '⚃', 5: '⚄', 6: '⚅'
+// 骰子点数配置 (哪个位置有点)
+// 0:无, 1:有
+const PIP_MAP = {
+  1: [[0,0,0], [0,1,0], [0,0,0]],
+  2: [[1,0,0], [0,0,0], [0,0,1]],
+  3: [[1,0,0], [0,1,0], [0,0,1]],
+  4: [[1,0,1], [0,0,0], [1,0,1]],
+  5: [[1,0,1], [0,1,0], [1,0,1]],
+  6: [[1,0,1], [1,0,1], [1,0,1]]
+};
+
+// 单个骰子组件
+const Dice = ({ value }) => {
+  const pips = PIP_MAP[value];
+  return (
+    <div className={`real-dice dice-${value}`}>
+      {pips.flat().map((hasPip, i) => (
+        <div key={i} className={hasPip ? 'pip' : ''} />
+      ))}
+    </div>
+  );
 };
 
 function LiarDicePage() {
   const navigate = useNavigate();
-  const { t } = useTranslation(); // 使用翻译钩子
+  const { t } = useTranslation();
 
-  // --- State 状态管理 ---
   const [dice, setDice] = useState([1, 1, 1, 1, 1]);
-  const [isShaking, setIsShaking] = useState(false); // 摇动动画
-  const [isCovered, setIsCovered] = useState(true);  // 盖子是否盖着
-  const [roundId, setRoundId] = useState(1);         // 局数
-  const [rollTime, setRollTime] = useState(null);    // 锁定时间
-  const [gameState, setGameState] = useState('READY'); // READY (准备), ROLLED (已摇), STRAIGHT (顺子可重摇)
-  const [message, setMessage] = useState("Ready");   // 提示文字
+  const [isShaking, setIsShaking] = useState(false);
+  const [isCovered, setIsCovered] = useState(true);
+  const [roundId, setRoundId] = useState(1);
+  const [rollTime, setRollTime] = useState(null);
+  const [gameState, setGameState] = useState('READY'); 
+  const [message, setMessage] = useState("");
 
-  // --- 1. 初始化: 防作弊检查 (Anti-Cheating) ---
+  // 初始化：读取防作弊缓存
   useEffect(() => {
-    // 尝试从手机缓存读取上一局的数据
     const savedDice = localStorage.getItem('lluvia_dice_values');
     const savedTime = localStorage.getItem('lluvia_dice_time');
     const savedRound = localStorage.getItem('lluvia_dice_round');
@@ -33,138 +49,121 @@ function LiarDicePage() {
       setDice(JSON.parse(savedDice));
       setRollTime(savedTime);
       setRoundId(parseInt(savedRound || 1));
-      setGameState('ROLLED'); // 恢复到“已摇”状态
-      setMessage(t("Data restored (Anti-cheat)")); // "已恢复数据"
-      setIsCovered(true); // 默认盖住
+      setGameState('ROLLED');
+      setMessage(t("game.data_restored")); // "数据已恢复"
     } else {
-        setMessage(t("Ready to roll"));
+      setMessage(t("game.ready_to_roll")); // "准备开始"
     }
   }, [t]);
 
-  // --- 2. 核心功能: 摇骰子 ---
   const handleRoll = () => {
-    // 如果已经摇过且不是顺子，禁止重摇
     if (gameState === 'ROLLED') return;
 
     setIsShaking(true);
-    setMessage(t("Rolling..."));
+    setMessage(t("game.rolling"));
 
-    // 播放 0.8秒 动画
     setTimeout(() => {
-      // A. 生成 5 个随机数 (1-6)
       const newDice = Array.from({ length: 5 }, () => Math.ceil(Math.random() * 6));
-      
-      // B. 顺子判定规则 (你的要求: 只有 23456 算顺子，12345 不算)
       const sortedStr = [...newDice].sort().join('');
-      const isStraight = (sortedStr === '23456'); 
+      const isStraight = (sortedStr === '23456'); // 仅 23456 算顺子
 
-      // C. 更新状态
       setDice(newDice);
-      const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false }); // 24小时制
+      const timeStr = new Date().toLocaleTimeString('en-GB', { hour12: false });
       setRollTime(timeStr);
       setIsShaking(false);
-      setIsCovered(true); // 摇完立刻盖住
+      setIsCovered(true);
 
-      // D. 存入缓存 (锁死结果，刷新网页也没用)
+      // 存入缓存
       localStorage.setItem('lluvia_dice_values', JSON.stringify(newDice));
       localStorage.setItem('lluvia_dice_time', timeStr);
       localStorage.setItem('lluvia_dice_round', roundId);
 
       if (isStraight) {
         setGameState('STRAIGHT');
-        setMessage(t("Straight! Free Reroll!")); // "顺子！免费重摇！"
+        setMessage(t("game.straight")); // "顺子！"
       } else {
         setGameState('ROLLED');
-        setMessage(t("Locked. Hold to peek.")); // "已锁定。按住查看。"
+        setMessage(t("game.locked")); // "已锁定"
       }
-
     }, 800);
   };
 
-  // --- 3. 下一局 (清除缓存) ---
   const handleNextRound = () => {
-    if (!window.confirm(t("Start next round?"))) return;
-    
+    // 下一局：保留局数，清除骰子缓存
     localStorage.removeItem('lluvia_dice_values');
     localStorage.removeItem('lluvia_dice_time');
-    
     setRoundId(prev => prev + 1);
     setGameState('READY');
-    setMessage(t("Ready to roll"));
+    setMessage(t("game.ready_to_roll"));
     setRollTime(null);
     setIsCovered(true);
+    // 更新局数缓存
+    localStorage.setItem('lluvia_dice_round', roundId + 1);
   };
 
-  // --- 4. 交互: 按住查看 (Peek Logic) ---
-  // 只有在“已摇”状态下，按住才能看
+  // 🚩 核心修复：退出时彻底清空
+  const handleExit = () => {
+    if (window.confirm(t("game.confirm_exit"))) {
+        localStorage.removeItem('lluvia_dice_values');
+        localStorage.removeItem('lluvia_dice_time');
+        localStorage.removeItem('lluvia_dice_round');
+        navigate('/member/game-center');
+    }
+  };
+
   const startPeek = () => { if (gameState !== 'READY') setIsCovered(false); };
   const endPeek = () => { setIsCovered(true); };
 
   return (
     <div className="dice-container">
-      {/* 顶部信息栏 */}
       <div className="dice-header">
-        <div className="round-badge">Round {roundId}</div>
+        <div className="round-badge">{t('game.round')} {roundId}</div>
         <div className="time-badge">
-            {rollTime ? `${t('Time')}: ${rollTime}` : "--:--:--"}
+            {rollTime ? rollTime : "--:--:--"}
         </div>
       </div>
 
-      <h2 className="dice-title">🎲 {t('Liar\'s Dice')}</h2>
+      <h2 className="dice-title">🎲 {t('game.title')}</h2>
 
-      {/* 骰盅区域 (核心交互区) */}
+      {/* 骰盅 */}
       <div 
         className={`dice-cup-area ${isShaking ? 'shaking' : ''}`}
-        // 电脑端鼠标事件
-        onMouseDown={startPeek} 
-        onMouseUp={endPeek} 
-        onMouseLeave={endPeek}
-        // 手机端触摸事件
-        onTouchStart={startPeek} 
-        onTouchEnd={endPeek}
-        // 禁止右键菜单干扰
+        onMouseDown={startPeek} onMouseUp={endPeek} onMouseLeave={endPeek}
+        onTouchStart={startPeek} onTouchEnd={endPeek}
         onContextMenu={(e)=>e.preventDefault()}
       >
-        {/* 盖子 (Cover) - 增加把手结构 */}
         <div className={`dice-cup-cover ${isCovered ? 'visible' : 'hidden'}`}>
-          <div className="cup-handle-outer">
-            <div className="cup-handle-inner"></div>
-          </div>
+          <div className="cup-handle-outer"><div className="cup-handle-inner"></div></div>
           <div className="cup-logo">LLUVIA</div>
-          <div className="cup-hint">{gameState === 'READY' ? '' : t('Hold to Peek')}</div>
+          <div className="cup-hint">{gameState === 'READY' ? '' : t('game.hold_to_peek')}</div>
         </div>
 
-        {/* 底部的骰子 (Dice) */}
+        {/* 真实 CSS 骰子 */}
         <div className="dice-grid">
-          {dice.map((d, i) => (
-            <div key={i} className={`single-dice dice-val-${d}`}>{DICE_ICONS[d]}</div>
-          ))}
+          {dice.map((d, i) => <Dice key={i} value={d} />)}
         </div>
       </div>
 
-      <p className="status-text" style={{color: gameState === 'STRAIGHT' ? '#e74c3c' : '#888'}}>
+      <p className="status-text" style={{color: gameState === 'STRAIGHT' ? '#e74c3c' : '#D4AF37'}}>
           {message}
       </p>
 
-      {/* 操作按钮 */}
       <div className="dice-actions">
-        {/* 摇骰按钮 (准备好 或 顺子时 显示) */}
         { (gameState === 'READY' || gameState === 'STRAIGHT') && (
             <button className="btn-pill big-btn" onClick={handleRoll} disabled={isShaking}>
-                {gameState === 'STRAIGHT' ? t('Reroll (Straight)') : t('Roll Dice')}
+                {gameState === 'STRAIGHT' ? t('game.reroll') : t('game.roll')}
             </button>
         )}
 
-        {/* 下一局按钮 (已锁定后 显示) */}
         { (gameState === 'ROLLED') && (
-            <button className="btn-ghost" onClick={handleNextRound}>
-                {t('Next Round')}
+            <button className="btn-ghost" onClick={handleNextRound} style={{borderColor:'#666', color:'#ccc'}}>
+                {t('game.next_round')}
             </button>
         )}
         
         <div style={{marginTop: '30px'}}>
-            <button className="link-text" onClick={() => navigate('/member/game-center')}>
-                {t('Exit Game')}
+            <button className="link-text" onClick={handleExit}>
+                {t('game.exit')}
             </button>
         </div>
       </div>

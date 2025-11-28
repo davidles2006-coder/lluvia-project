@@ -147,19 +147,19 @@
   
   "Close": "关闭",
 
-  "Game Center": "娱乐中心",
-  "Dice Game": "大话骰",
-  "Ready to roll": "准备开始",
-  "Rolling...": "摇骰中...",
-  "Data restored (Anti-cheat)": "数据已恢复 (防作弊)",
-  "Straight! Free Reroll!": "🔥 顺子 (23456)！可免费重摇！",
-  "Locked. Hold to peek.": "已锁定。按住屏幕查看。",
-  "Start next round?": "确定结束当前局，开始下一局？",
-  "Hold to Peek": "按住查看",
-  "Reroll (Straight)": "顺子重摇",
-  "Roll Dice": "摇一摇",
-  "Next Round": "下一局",
-  "Exit Game": "退出游戏"
+  "game.title": "大话骰",
+  "game.round": "第局",
+  "game.ready_to_roll": "准备就绪",
+  "game.rolling": "摇骰中...",
+  "game.data_restored": "已恢复上局数据 (防作弊)",
+  "game.straight": "🔥 顺子 (23456)！可重摇！",
+  "game.locked": "已锁定，按住屏幕查看",
+  "game.hold_to_peek": "按住查看",
+  "game.roll": "摇一摇",
+  "game.reroll": "顺子重摇",
+  "game.next_round": "下一局",
+  "game.exit": "退出游戏",
+  "game.confirm_exit": "确定要退出吗？这会清除当前局数。"
 
 
 }
