@@ -148,7 +148,18 @@
   "Close": "关闭",
 
   "Game Center": "娱乐中心",
-  "Dice Game": "大话骰"
+  "Dice Game": "大话骰",
+  "Ready to roll": "准备开始",
+  "Rolling...": "摇骰中...",
+  "Data restored (Anti-cheat)": "数据已恢复 (防作弊)",
+  "Straight! Free Reroll!": "🔥 顺子 (23456)！可免费重摇！",
+  "Locked. Hold to peek.": "已锁定。按住屏幕查看。",
+  "Start next round?": "确定结束当前局，开始下一局？",
+  "Hold to Peek": "按住查看",
+  "Reroll (Straight)": "顺子重摇",
+  "Roll Dice": "摇一摇",
+  "Next Round": "下一局",
+  "Exit Game": "退出游戏"
 
 
 }
