@@ -18,28 +18,37 @@ function GameCenterPage() {
 
   // 1. 定义游戏列表 (使用翻译键值)
   // 我们把 emoji 单独拿出来，标题和描述都用 t() 包裹
+  // 1. 定义游戏列表 (配置区)
   const games = [
+    {
+        id: 'monopoly',
+        icon: '🍺',
+        title: t('game.monopoly_title'), 
+        desc: t('game.monopoly_desc'),   // 🚩 修复: 使用翻译
+        minLevel: 'Silver',              // 🚩 修复: 提升门槛到 Silver
+        route: '/member/game/monopoly'
+    },
     {
         id: 'dice',
         icon: '🎲',
-        title: t('game.dice_title'), // "大话骰"
-        desc: t('game.dice_desc'),   // "经典酒吧游戏"
-        minLevel: 'Bronze',
+        title: t('game.dice_title'),
+        desc: t('game.dice_desc'),
+        minLevel: 'Bronze',              // 骰子还是免费开放
         route: '/member/game/dice'
     },
     {
         id: 'slots',
         icon: '🎰',
-        title: t('game.slots_title'), // "幸运老虎机"
-        desc: t('game.slots_desc'),   // "赢取海量积分"
+        title: t('game.slots_title'),
+        desc: t('game.slots_desc'),
         minLevel: 'Silver',
         route: '/member/game/slots'
     },
     {
         id: 'bingo',
         icon: '🎱',
-        title: t('game.bingo_title'), // "每日宾果"
-        desc: t('game.bingo_desc'),   // "试试手气"
+        title: t('game.bingo_title'),
+        desc: t('game.bingo_desc'),
         minLevel: 'Gold',
         route: '/member/game/bingo'
     }

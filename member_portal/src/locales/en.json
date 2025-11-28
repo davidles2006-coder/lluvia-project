@@ -158,7 +158,6 @@
   "game.slots_desc": "Win Big Points!",
   "game.bingo_title": "Daily Bingo",
   "game.bingo_desc": "Try your luck daily",
-  "game.locked_msg": "Locked! This game requires {{level}} level.",
 
   "game.title": "Liar's Dice",
   "game.round": "Round",
@@ -215,7 +214,9 @@
   "card.3": "Treat: Buy everyone a shot, and you drink 2.",
   "card.4": "Yell: Scream 'I am a Bottom/Top' 3 times. Or drink 2.",
   "card.5": "Chain: You and people on your left/right drink 1.",
-  "card.6": "Lucky: Pick the best drinker to drink 2."
+  "card.6": "Lucky: Pick the best drinker to drink 2.",
+  "game.monopoly_desc": "Party Game (2-6 Players)",
+  "game.locked_msg": "Locked! This game requires {{level}} level. Please recharge to upgrade!"
 
 
 
