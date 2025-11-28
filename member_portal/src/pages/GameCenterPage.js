@@ -81,8 +81,8 @@ function GameCenterPage() {
 
   return (
     <div className="game-center-container">
-      <h2 className="center-title">🎮 {t('Game Center')}</h2>
-      <p className="center-subtitle">{t('Play to win points & have fun!')}</p>
+      <h2 className="center-title">🎮 {t('game_center_title')}</h2>
+      <p className="center-subtitle">{t('game_center_subtitle')}</p>
       
       <div className="games-grid">
         {games.map((game) => {
