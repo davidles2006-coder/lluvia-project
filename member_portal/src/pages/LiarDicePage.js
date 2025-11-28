@@ -125,10 +125,13 @@ function LiarDicePage() {
         // 禁止右键菜单干扰
         onContextMenu={(e)=>e.preventDefault()}
       >
-        {/* 盖子 (Cover) */}
+        {/* 盖子 (Cover) - 增加把手结构 */}
         <div className={`dice-cup-cover ${isCovered ? 'visible' : 'hidden'}`}>
+          <div className="cup-handle-outer">
+            <div className="cup-handle-inner"></div>
+          </div>
           <div className="cup-logo">LLUVIA</div>
-          <div className="cup-hint">{gameState === 'READY' ? '' : `( ${t('Hold to Peek')} )`}</div>
+          <div className="cup-hint">{gameState === 'READY' ? '' : t('Hold to Peek')}</div>
         </div>
 
         {/* 底部的骰子 (Dice) */}
