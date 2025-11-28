@@ -147,6 +147,14 @@
   
   "Close": "关闭",
 
+  "game.dice_title": "大话骰",
+  "game.dice_desc": "经典酒吧互动游戏",
+  "game.slots_title": "幸运老虎机",
+  "game.slots_desc": "以小博大，赢取积分",
+  "game.bingo_title": "每日宾果",
+  "game.bingo_desc": "每日一抽，试试手气",
+  "game.locked_msg": "权益锁定！该游戏仅限 {{level}} 及以上会员体验。",
+
   "game.title": "大话骰",
   "game.round": "第局",
   "game.ready_to_roll": "准备就绪",

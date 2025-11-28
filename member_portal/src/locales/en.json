@@ -147,6 +147,14 @@
   
   "Close": "Close",
 
+  "game.dice_title": "Liar's Dice",
+  "game.dice_desc": "Classic Bar Game",
+  "game.slots_title": "Lucky Slots",
+  "game.slots_desc": "Win Big Points!",
+  "game.bingo_title": "Daily Bingo",
+  "game.bingo_desc": "Try your luck daily",
+  "game.locked_msg": "Locked! This game requires {{level}} level.",
+
   "game.title": "Liar's Dice",
   "game.round": "Round",
   "game.ready_to_roll": "Ready to Roll",

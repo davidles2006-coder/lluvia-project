@@ -1,4 +1,4 @@
-// src/pages/GameCenterPage.js
+// src/pages/GameCenterPage.js - V175 (翻译修复版)
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,51 +7,49 @@ import './GameCenterPage.css';
 
 const API_BASE_URL = API_ROOT;
 
-// ⚖️ 等级权重表 (数字越大越高级)
-const LEVEL_WEIGHTS = {
-    'Bronze': 1,
-    'Silver': 2,
-    'Gold': 3,
-    'Platinum': 4,
-    'Diamond': 5
-};
+// 等级权重
+const LEVEL_WEIGHTS = { 'Bronze': 1, 'Silver': 2, 'Gold': 3, 'Platinum': 4, 'Diamond': 5 };
 
 function GameCenterPage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const [userLevel, setUserLevel] = useState('Bronze'); // 默认 Bronze
+  const [userLevel, setUserLevel] = useState('Bronze');
   const [loading, setLoading] = useState(true);
 
-  // 🎮 游戏配置列表
+  // 1. 定义游戏列表 (使用翻译键值)
+  // 我们把 emoji 单独拿出来，标题和描述都用 t() 包裹
   const games = [
     {
         id: 'dice',
-        title: '🎲 Liar\'s Dice',
-        desc: 'Classic Bar Game',
-        minLevel: 'Bronze', // 所有人可玩
+        icon: '🎲',
+        title: t('game.dice_title'), // "大话骰"
+        desc: t('game.dice_desc'),   // "经典酒吧游戏"
+        minLevel: 'Bronze',
         route: '/member/game/dice'
     },
     {
         id: 'slots',
-        title: '🎰 Lucky Slots',
-        desc: 'Win Big Points!',
-        minLevel: 'Silver', // 🚩 Silver 以上才能玩 (锁定演示)
-        route: '/member/game/slots' 
+        icon: '🎰',
+        title: t('game.slots_title'), // "幸运老虎机"
+        desc: t('game.slots_desc'),   // "赢取海量积分"
+        minLevel: 'Silver',
+        route: '/member/game/slots'
     },
     {
         id: 'bingo',
-        title: '🎱 Daily Bingo',
-        desc: 'Try your luck',
-        minLevel: 'Gold', // 🚩 Gold 以上才能玩 (锁定演示)
+        icon: '🎱',
+        title: t('game.bingo_title'), // "每日宾果"
+        desc: t('game.bingo_desc'),   // "试试手气"
+        minLevel: 'Gold',
         route: '/member/game/bingo'
     }
   ];
 
-  // 1. 获取用户等级
+  // 2. 获取等级
   useEffect(() => {
     const fetchLevel = async () => {
       const token = localStorage.getItem('authToken');
-      if (!token) { navigate('/login'); return; }
+      if (!token) return;
       try {
         const response = await fetch(`${API_BASE_URL}/api/profile/`, {
             headers: { 'Authorization': `Token ${token}` }
@@ -64,24 +62,22 @@ function GameCenterPage() {
       setLoading(false);
     };
     fetchLevel();
-  }, [navigate]);
+  }, []);
 
-  // 2. 点击处理 (检查权限)
+  // 3. 点击处理
   const handleGameClick = (game) => {
       const userWeight = LEVEL_WEIGHTS[userLevel] || 1;
       const reqWeight = LEVEL_WEIGHTS[game.minLevel] || 1;
 
-      // 如果用户等级 < 游戏要求
       if (userWeight < reqWeight) {
-          alert(t(`🔒 Locked! Requires ${game.minLevel} level.`));
+          // 弹窗提示使用翻译
+          alert(t('game.locked_msg', { level: game.minLevel }));
           return;
       }
-
-      // 权限通过，跳转
       navigate(game.route);
   };
 
-  if (loading) return <div style={{color:'#fff', textAlign:'center', padding:'50px'}}>{t('Loading...')}</div>;
+  if (loading) return <div className="game-center-loading">{t('Loading...')}</div>;
 
   return (
     <div className="game-center-container">
@@ -90,7 +86,6 @@ function GameCenterPage() {
       
       <div className="games-grid">
         {games.map((game) => {
-            // 判断是否锁定
             const isLocked = (LEVEL_WEIGHTS[userLevel] || 1) < (LEVEL_WEIGHTS[game.minLevel] || 1);
             
             return (
@@ -99,13 +94,13 @@ function GameCenterPage() {
                     className={`game-card ${isLocked ? 'locked' : ''}`}
                     onClick={() => handleGameClick(game)}
                 >
-                    <div className="game-icon">{game.title.split(' ')[0]}</div>
+                    {/* 直接显示图标，不需要再去 substring 标题了 */}
+                    <div className="game-icon">{game.icon}</div>
                     <div className="game-info">
-                        <h3>{game.title.substring(2)}</h3> {/* 去掉 emoji 显示标题 */}
+                        <h3>{game.title}</h3>
                         <p>{game.desc}</p>
                     </div>
                     
-                    {/* 锁定的遮罩层 */}
                     {isLocked && (
                         <div className="lock-overlay">
                             <span className="lock-icon">🔒</span>
