@@ -147,6 +147,8 @@
   
   "Close": "关闭",
 
+  "Game Center": "娱乐中心",
+
   "game_center_title": "娱乐中心",
   "game_center_subtitle": "尽情娱乐！",
 
@@ -170,7 +172,50 @@
   "game.reroll": "顺子重摇",
   "game.next_round": "下一局",
   "game.exit": "退出游戏",
-  "game.confirm_exit": "确定要退出吗？这会清除当前局数。"
+  "game.confirm_exit": "确定要退出吗？这会清除当前局数。",
+
+  "game.monopoly_title": "酒鬼大富翁",
+  "game.monopoly_setup": "输入酒鬼名字 (2-6人)",
+  "game.monopoly_add": "添加",
+  "game.monopoly_start": "开始拼酒！",
+  "game.monopoly_exit": "退出",
+  "game.monopoly_turn": "轮到:",
+  "game.monopoly_roll": "🎲 掷骰子",
+  "game.monopoly_execute": "执行并下一位",
+  "game.monopoly_chance_title": "🃏 命运时刻",
+
+  "tile.start_label": "🏁 开局", "tile.start_text": "全员举杯，干半杯！",
+  "tile.u_drink_label": "👉 就是你", "tile.u_drink_text": "别看别人，喝 1 杯。",
+  "tile.chance_label": "❓ 机会", "tile.chance_text": "触发随机事件...",
+  "tile.game_3_label": "🎲 逛三园", "tile.game_3_text": "水果/动物/品牌接龙。输家喝 1 杯。",
+  "tile.bomb_label": "💣 深水炸弹", "tile.bomb_text": "全场高能！喝掉桌上所有剩酒！",
+  "tile.double_label": "👉👉 喝双倍", "tile.double_text": "倒霉蛋。喝 2 杯！",
+  "tile.right_label": "👉 右边受难", "tile.right_text": "你右手边的人，替你喝 1 杯。",
+  "tile.toilet_label": "🚔 进局子", "tile.toilet_text": "暂停 2 轮。想出来？喝 1 杯保释酒。",
+  "tile.pair_label": "❤️ 找对象", "tile.pair_text": "选一个你喜欢的，喝 1 杯交杯酒。",
+  "tile.game_7_label": "🖐️ 逢七过", "tile.game_7_text": "报数含7或7倍数拍手。输家喝 1 杯。",
+  "tile.shutup_label": "🤐 禁言令", "tile.shutup_text": "直到下次轮到你，说一个字喝一口。",
+  
+  "tile.top_label": "1️⃣ 1号集结", "tile.top_text": "全场所有 1 号，起立喝 1 杯！(不承认罚 2 杯)",
+  "tile.bottom_label": "0️⃣ 0号集结", "tile.bottom_text": "全场所有 0 号和 0.5，起立喝 1 杯！(含糊不清罚 3 杯)",
+  
+  "tile.hell_label": "☠️ 见鬼", "tile.hell_text": "运气太差。连喝 3 杯，不许停！",
+  "tile.photo_label": "📷 照妖镜", "tile.photo_text": "大家做鬼脸合影，谁偶像包袱重(不够丑)谁喝。",
+  "tile.back_label": "🔙 梦回", "tile.back_text": "倒退回【1号集结】或【0号集结】(随机)，再罚一次！",
+  "tile.left_label": "👈 左边受难", "tile.left_text": "你左手边的人，替你喝 1 杯。",
+  "tile.single_label": "👩 单身狗", "tile.single_text": "现场单身的人，喝 1 杯。",
+  "tile.rest_label": "🅿️ 休息", "tile.rest_text": "免费停车，全场休息一轮。",
+  "tile.battery_label": "🔋 谁最满", "tile.battery_text": "手机电量最高的人，喝 1 杯！",
+  "tile.black_label": "👕 黑衣人", "tile.black_text": "穿黑色上衣的人，喝 1 杯。",
+  "tile.luck_label": "🎲 听天由命", "tile.luck_text": "掷一颗骰子：点数是几，就喝几口。",
+  "tile.destiny_label": "🔮 命运", "tile.destiny_text": "抽取一张功能卡...",
+
+  "card.1": "大冒险：给通讯录第 5 个人发 '我好寂寞'。不敢发？喝 2 杯。",
+  "card.2": "照镜子：大家轮流扮鬼脸。第一个笑的人喝 2 杯。",
+  "card.3": "破财消灾：请全场每人一个 Shot，你自己再喝 2 个。",
+  "card.4": "神经病：大喊三声 '我是骚零/猛1'。不敢喊？喝 2 杯。",
+  "card.5": "连坐：你和左右两边的人，一起喝 1 杯。",
+  "card.6": "幸运儿：指定全场酒量最好的人，喝 2 杯。"
 
 
 }

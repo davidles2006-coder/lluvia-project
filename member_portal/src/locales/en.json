@@ -147,6 +147,8 @@
   
   "Close": "Close",
 
+  "Game Center": "GAME CENTER",
+
   "game_center_title": "GAME CENTER",
   "game_center_subtitle": "PLAY TO WIN！",
 
@@ -170,7 +172,50 @@
   "game.reroll": "Reroll (Straight)",
   "game.next_round": "Next Round",
   "game.exit": "Exit Game",
-  "game.confirm_exit": "Are you sure? This will reset the round counter."
+  "game.confirm_exit": "Are you sure? This will reset the round counter.",
+
+  "game.monopoly_title": "Drunk Monopoly",
+  "game.monopoly_setup": "Enter Names (2-6 Players)",
+  "game.monopoly_add": "Add",
+  "game.monopoly_start": "Let's Drink!",
+  "game.monopoly_exit": "Exit",
+  "game.monopoly_turn": "Turn:",
+  "game.monopoly_roll": "🎲 Roll",
+  "game.monopoly_execute": "Done & Next",
+  "game.monopoly_chance_title": "🃏 Destiny Card",
+
+  "tile.start_label": "🏁 Start", "tile.start_text": "Cheers! Everyone drinks half a cup!",
+  "tile.u_drink_label": "👉 You Drink", "tile.u_drink_text": "Yes you. Drink 1 cup.",
+  "tile.chance_label": "❓ Chance", "tile.chance_text": "Draw a random card...",
+  "tile.game_3_label": "🎲 Categories", "tile.game_3_text": "Play Categories Game. Loser drinks 1.",
+  "tile.bomb_label": "💣 BOMB", "tile.bomb_text": "WARNING! Finish ALL drinks on the table!",
+  "tile.double_label": "👉👉 Double", "tile.double_text": "Bad luck. Drink 2 cups!",
+  "tile.right_label": "👉 Right", "tile.right_text": "Person to your Right drinks!",
+  "tile.toilet_label": "🚔 Jail", "tile.toilet_text": "Pause 2 turns. Drink 1 cup to bail out.",
+  "tile.pair_label": "❤️ Partner", "tile.pair_text": "Pick someone you like to drink with you.",
+  "tile.game_7_label": "🖐️ Game 7", "tile.game_7_text": "Play '7s Game'. Loser drinks 1.",
+  "tile.shutup_label": "🤐 Silence", "tile.shutup_text": "No talking until your next turn. Talk = Drink.",
+  
+  "tile.top_label": "1️⃣ Top Assembly", "tile.top_text": "All Tops (1) drink 1 cup! (Double if deny)",
+  "tile.bottom_label": "0️⃣ Btm Assembly", "tile.bottom_text": "All Bottoms (0) drink 1 cup! (Triple if deny)",
+  
+  "tile.hell_label": "☠️ Hell", "tile.hell_text": "Drink 3 cups non-stop!",
+  "tile.photo_label": "📷 Selfie", "tile.photo_text": "Group ugly selfie. Ugliest drinks.",
+  "tile.back_label": "🔙 Back", "tile.back_text": "Go back to Assembly (0 or 1) and drink again!",
+  "tile.left_label": "👈 Left", "tile.left_text": "Person to your Left drinks!",
+  "tile.single_label": "👩 Single", "tile.single_text": "All single people drink 1 cup.",
+  "tile.rest_label": "🅿️ Parking", "tile.rest_text": "Free parking! Everyone rest one turn.",
+  "tile.battery_label": "🔋 Battery", "tile.battery_text": "Person with highest battery % drinks 1!",
+  "tile.black_label": "👕 Black Shirt", "tile.black_text": "Anyone wearing black top drinks 1.",
+  "tile.luck_label": "🎲 Dice Luck", "tile.luck_text": "Roll a dice. Drink the number shown.",
+  "tile.destiny_label": "🔮 Destiny", "tile.destiny_text": "Draw a function card...",
+
+  "card.1": "Dare: Text the 5th contact 'I'm lonely'. Or drink 2.",
+  "card.2": "Mirror: Everyone make funny faces. First to laugh drinks 2.",
+  "card.3": "Treat: Buy everyone a shot, and you drink 2.",
+  "card.4": "Yell: Scream 'I am a Bottom/Top' 3 times. Or drink 2.",
+  "card.5": "Chain: You and people on your left/right drink 1.",
+  "card.6": "Lucky: Pick the best drinker to drink 2."
 
 
 
