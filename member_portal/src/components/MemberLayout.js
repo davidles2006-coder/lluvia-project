@@ -70,6 +70,7 @@ function MemberLayout() {
           {/* 桌面端导航链接 (手机端隐藏) */}
           <div className="desktop-links">
             <Link to="/member/dashboard" className="link-independent">{t('My Account')}</Link>
+            <Link to="/member/game-center" className="link-independent">🎮 {t('Game Center')}</Link>
             <Link to="/member/points-store" className="link-independent">{t('Points Store')}</Link>
             <Link to="/member/balance-store" className="link-independent">{t('Balance Store')}</Link>
           </div>
@@ -98,6 +99,7 @@ function MemberLayout() {
       {/* 🚩 手机端下拉菜单 (点击汉堡后显示) */}
       <div className={`mobile-menu-dropdown ${isMobileMenuOpen ? 'show' : ''}`}>
           <Link to="/member/dashboard" className="mobile-link">{t('My Account')}</Link>
+          <Link to="/member/game-center" className="mobile-link">🎮 {t('Game Center')}</Link>
           <Link to="/member/points-store" className="mobile-link">{t('Points Store')}</Link>
           <Link to="/member/balance-store" className="mobile-link">{t('Balance Store')}</Link>
           <hr className="mobile-divider"/>

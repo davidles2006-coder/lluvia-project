@@ -15,6 +15,8 @@ import BalanceStorePage from './pages/BalanceStorePage';
 import SocialGalleryPage from './pages/SocialGalleryPage'; 
 import AnnouncementDetailPage from './pages/AnnouncementDetailPage'; 
 import TermsPage from './pages/TermsPage';
+import GameCenterPage from './pages/GameCenterPage';
+import LiarDicePage from './pages/LiarDicePage';
 
 function App() {
   return (
@@ -33,6 +35,8 @@ function App() {
       ========================== */}
       <Route path="/member" element={<MemberLayout />}>
         <Route path="dashboard" element={<DashboardPage />} />
+        <Route path="game-center" element={<GameCenterPage />} />
+        <Route path="game/dice" element={<LiarDicePage />} />
         <Route path="points-store" element={<PointsStorePage />} />
         <Route path="balance-store" element={<BalanceStorePage />} />
         
