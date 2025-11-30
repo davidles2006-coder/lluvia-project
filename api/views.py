@@ -565,8 +565,12 @@ class AdminConsumeView(generics.GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
+# api/views.py
+
 class AdminTrackSpendView(generics.GenericAPIView):
-    """ V10 蓝图: 追踪 (现金/刷卡) (POST /api/admin/track/{memberId}/) """
+    """
+    V188 修复: 现金/刷卡 -> 类型强制转换 -> 解决 500 错误
+    """
     serializer_class = AdminTrackSpendSerializer
     permission_classes = [IsStaffUser]
 
@@ -575,32 +579,40 @@ class AdminTrackSpendView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         member = Member.objects.get(memberId=self.kwargs.get('memberId'))
-        spend_amount = serializer.validated_data['amount']
+        
+        # 1. 获取金额 (确保是数字)
+        try:
+            spend_amount = float(serializer.validated_data['amount'])
+        except:
+            return Response({'error': 'Invalid amount format'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # 2. 计算积分 (调用辅助函数，它已经修好了类型转换)
+        # 确保 get_points_for_spend 函数在文件上方已经定义好了！
         points_earned = get_points_for_spend(member, spend_amount)
 
         try:
             with transaction.atomic():
+                # 3. 加积分
                 member.loyaltyPoints += points_earned
                 member.lifetimePoints += points_earned
-
                 update_member_level(member)
-
                 member.save()
 
+                # 4. 记账 (转回 Decimal 存入数据库)
                 Transaction.objects.create(
                     member=member,
                     staff=request.user,
                     type='CONSUME_CASH',
-                    amount = -spend_amount,
+                    amount = -Decimal(str(spend_amount)), # 记录负数
                     pointsEarned = points_earned
                 )
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({
-            'success': f'Successfully tracked ${spend_amount} cash spend.',
-            'points_earned': points_earned
+            'success': f'Tracked successfully. Earned {points_earned} pts.', 
+            'points_earned': points_earned,
+            'new_total_points': member.loyaltyPoints
         }, status=status.HTTP_200_OK)
 
 
