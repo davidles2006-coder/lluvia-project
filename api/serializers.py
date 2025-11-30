@@ -59,11 +59,11 @@ class MemberProfileSerializer(serializers.ModelSerializer):
             'memberId', 'email', 'phone', 'nickname', 'dob',
             'level', 'loyaltyPoints', 'lifetimePoints', 'avatarUrl', 
             'flair', 'socialOptIn', 'balance', 'balanceExpiryDate',
-            'password' # 🚩 V35: 添加 password 字段
+            'password', 'levelExpiryDate' # 🚩 V35: 添加 password 字段
         ]
         read_only_fields = [
             'memberId', 'level', 'loyaltyPoints', 
-            'lifetimePoints', 'balance', 'balanceExpiryDate'
+            'lifetimePoints', 'balance', 'balanceExpiryDate', 'levelExpiryDate'
             # 注意：email 现在允许修改了
         ]
 

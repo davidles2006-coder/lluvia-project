@@ -35,7 +35,7 @@
   "Success": "操作成功",
   "Failed": "操作失败",
   "Note: Irreversible": "注意：此操作不可撤销，将直接扣除会员余额。",
-  "10% Discount": "享10%折扣",
+  "Select Voucher to Redeem": "选择要核销的代金券",
   
   "Vouchers Available": "可用代金券",
   "No vouchers available.": "该会员没有可用的代金券。",
@@ -155,5 +155,22 @@
        "error_fetch": "获取模板失败",
        "error_submit": "保存失败"
     }
-  }
+  },
+  "View Benefits": "💎 查看会员权益",
+  "Member Benefits": "会员尊享权益",
+  "Recharge Privileges": "💰 充值福利",
+  "Recharge Rule 1": "充值 $300：送 3张 $50 代金券 + 升级白银会员！",
+  "Recharge Rule 2": "充值 $500：送 5张 $50 代金券",
+  "Recharge Rule 3": "充值 $1000：送 10张 $50 代金券",
+  "Spending Privileges": "💳 消费与折扣",
+  "Voucher Rule": "代金券：满 $180 可用一张 $50 券。",
+  "Level Multiplier": "🚀 积分倍率",
+  "Points Explain": "每消费 $1 获得积分：",
+  "Bronze Speed": "1.0 倍",
+  "Silver Speed": "1.5 倍",
+  "Gold Speed": "2.0 倍",
+  "Platinum Speed": "2.5 倍",
+  "Diamond Speed": "3.0 倍",
+  "Close": "关闭"
+
 }

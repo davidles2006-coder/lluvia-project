@@ -134,8 +134,8 @@
   "Recharge Rule 3": "充值 $1000：送 10张 $50 代金券",
   
   "Spending Privileges": "💳 消费与折扣 (Spending)",
-  "Balance Discount": "余额支付：全场自动 9 折 (10% OFF)，按折后金额计算积分。",
   "Voucher Rule": "代金券：每满 $180 可使用一张 $50 券 (不与余额同享)。",
+  "Balance Discount": "余额支付：使用账户余额直接支付。",
   
   "Level Multiplier": "🚀 等级积分加速 (Points)",
   "Points Explain": "积分可用于商城兑换。每消费 $1 (实付) 获得积分倍率如下：",

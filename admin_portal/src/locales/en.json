@@ -35,7 +35,7 @@
   "Success": "Success",
   "Failed": "Failed",
   "Note: Irreversible": "Note: This action is irreversible.",
-  "10% Discount": "10% Discount",
+  "Select Voucher to Redeem": "Select Voucher to Redeem",
 
   "Vouchers Available": "Vouchers Available",
   "No vouchers available.": "No vouchers available.",
@@ -154,5 +154,21 @@
        "error_fetch": "Failed to fetch templates",
        "error_submit": "Failed to save voucher type"
     }
-  }
+  },
+  "View Benefits": "💎 View Benefits",
+  "Member Benefits": "Member Benefits",
+  "Recharge Privileges": "💰 Recharge Privileges",
+  "Recharge Rule 1": "充值 $300：送 3张 $50 代金券 + 升级白银会员！",
+  "Recharge Rule 2": "充值 $500：送 5张 $50 代金券",
+  "Recharge Rule 3": "充值 $1000：送 10张 $50 代金券",
+  "Spending Privileges": "💳 消费与折扣",
+  "Voucher Rule": "代金券：满 $180 可用一张 $50 券。",
+  "Level Multiplier": "🚀 积分倍率",
+  "Points Explain": "每消费 $1 获得积分：",
+  "Bronze Speed": "1.0 倍",
+  "Silver Speed": "1.5 倍",
+  "Gold Speed": "2.0 倍",
+  "Platinum Speed": "2.5 倍",
+  "Diamond Speed": "3.0 倍",
+  "Close": "关闭"
 }
