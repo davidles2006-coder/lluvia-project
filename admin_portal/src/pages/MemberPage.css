@@ -110,3 +110,67 @@
   .stat-item { align-items: flex-start; }
   .stat-item:last-child { align-items: flex-end; }
 }
+
+/* --- Recharge Tab 美化 (V190) --- */
+
+.section-title {
+  color: #888;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+/* 网格布局：一行两个 */
+.recharge-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  gap: 15px;
+}
+
+/* 单个卡片 */
+.recharge-card {
+  background: #2a2a2a;
+  border: 2px solid #444;
+  border-radius: 12px;
+  padding: 20px 10px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* 选中状态：变成金色 */
+.recharge-card.active {
+  border-color: #D4AF37;
+  background: rgba(212, 175, 55, 0.15);
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
+}
+
+.tier-amount {
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  font-family: monospace;
+}
+
+.tier-bonus {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 5px;
+}
+.recharge-card.active .tier-bonus {
+  color: #D4AF37;
+}
+
+.confirm-btn:disabled {
+  background: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
+/* 手机适配优化 */
+@media (max-width: 480px) {
+  .recharge-grid {
+    grid-template-columns: 1fr 1fr; /* 保持并排，如果屏幕太小可以改成 1fr */
+  }
+  .tier-amount { font-size: 20px; }
+}
