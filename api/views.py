@@ -499,8 +499,12 @@ class AdminRechargeView(generics.GenericAPIView):
         return Response({'success': f'Successfully recharged ${tier.amount}.{promo_message}'}, status=status.HTTP_200_OK)
 
 
+# api/views.py
+
 class AdminConsumeView(generics.GenericAPIView):
-    """ V4/V10 蓝图: 后勤代消费 (余额) (POST /api/admin/consume/{memberId}/) """
+    """
+    V185 修正: 余额消费 -> 原价扣款 (取消 10% 折扣) -> 计算积分
+    """
     serializer_class = AdminConsumeSerializer
     permission_classes = [IsStaffUser]
 
@@ -511,38 +515,42 @@ class AdminConsumeView(generics.GenericAPIView):
         member = Member.objects.get(memberId=self.kwargs.get('memberId'))
         bill_amount = serializer.validated_data['amount']
 
-        discount_amount = bill_amount * Decimal('0.10')
-        actual_spend = bill_amount - discount_amount
+        # 🚩 修改：不再计算折扣，实扣金额 = 账单金额
+        actual_spend = bill_amount 
 
         if member.balance < actual_spend:
-            return Response({'error': f'Insufficient balance. Need ${actual_spend}, but only have ${member.balance}.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'Insufficient balance. Need ${actual_spend}.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        points_earned = get_points_for_spend(member, actual_spend)
+        # 计算积分 (按全额计算，会员反而赚了更多积分)
+        points_earned = get_points_for_spend(member, float(actual_spend))
 
         try:
             with transaction.atomic():
+                # 1. 扣余额
                 member.balance -= actual_spend
+                
+                # 2. 加积分
                 member.loyaltyPoints += points_earned
                 member.lifetimePoints += points_earned
-
                 update_member_level(member)
-
                 member.save()
 
+                # 3. 记账
                 Transaction.objects.create(
                     member=member,
                     staff=request.user,
                     type='CONSUME_BALANCE',
                     amount = -actual_spend,
-                    discountApplied = discount_amount,
+                    discountApplied = 0, # 记录为 0
                     pointsEarned = points_earned
                 )
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({
-            'success': f'Successfully consumed ${actual_spend} (Bill: ${bill_amount}, Discount: ${discount_amount})',
-            'points_earned': points_earned
+            'success': f'Successfully consumed ${actual_spend}', 
+            'points_earned': points_earned,
+            'new_balance': member.balance
         }, status=status.HTTP_200_OK)
 
 
@@ -852,10 +860,10 @@ class MemberAnnouncementDetailView(generics.RetrieveAPIView):
 
 
 
+
 class RedeemBalanceView(generics.GenericAPIView):
     """
-    V5 蓝图: 会员使用“余额”购买商城商品
-    (包含 V4/V5 业务逻辑：折扣、积分、双账本、统一库存)
+    V185 修正: 余额商城购买 -> 原价扣款 (取消折扣)
     """
     serializer_class = RedeemBalanceSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -865,108 +873,76 @@ class RedeemBalanceView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         member = request.user
-        item_id = serializer.validated_data['item_id'] # (这是 Reward_Balance_Store 的 ID)
+        item_id = serializer.validated_data['item_id']
 
         try:
-            # 1. 找到“价格标签” (Balance Store Item)
             item = Reward_Balance_Store.objects.get(id=item_id, isActive=True) 
         except Reward_Balance_Store.DoesNotExist:
-            return Response({'error': 'Item not found or unavailable.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Item not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 2. 找到“主产品” (VoucherType)
         if not item.linkedVoucherType:
-            return Response({'error': 'Item configuration error: No linked product.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'Configuration error.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        product = item.linkedVoucherType # 这就是我们的 "T-Shirt Voucher"
+        product = item.linkedVoucherType
 
-        # 3. V4 逻辑：计算折扣和积分
-        # (我们必须在“锁定”数据库之前先计算好价格)
-        price = item.balancePrice
-        discount_amount = price * Decimal('0.10') # 🚩 你的“10% 折扣”规则
-        actual_spend = price - discount_amount
+        # 🚩 修改：取消折扣逻辑
+        actual_spend = item.balancePrice # 原价
         
-        # 🚩 你的“按等级算积分”规则
-        points_earned = get_points_for_spend(member, actual_spend) 
+        points_earned = get_points_for_spend(member, float(actual_spend))
 
-        # 4. 检查会员余额
         if member.balance < actual_spend:
-             return Response({'error': f'Insufficient balance. Need ${actual_spend}, but only have ${member.balance}.'}, status=status.HTTP_400_BAD_REQUEST)
+             return Response({'error': 'Insufficient balance.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 5. 🚩 V5 蓝图：开始执行“双账本 + 统一库存”事务
         try:
             with transaction.atomic():
-                
-                # 动作 1：[库存] 检查并扣减库存
+                # 库存检查
                 product_to_update = VoucherType.objects.select_for_update().get(id=product.id)
-                
-                if product_to_update.stockCount is not None: # (None = 无限)
+                if product_to_update.stockCount is not None:
                     if product_to_update.stockCount <= 0:
-                        raise Exception('Sorry, this item is out of stock.') # 触发回滚
-                    
+                        raise Exception('Out of stock.')
                     product_to_update.stockCount -= 1
                     product_to_update.save()
 
-                # 动作 2：[发券] 创建代金券 (作为购买凭证)
-                new_voucher = Voucher.objects.create(
-                    member=member,
-                    voucherType=product_to_update
-                    # (status='unused' 和 expiryDate 将由 models.py 自动处理)
-                )
+                # 发券
+                new_voucher = Voucher.objects.create(member=member, voucherType=product_to_update)
 
-                # 动作 3：[会员] 扣减余额, 增加积分
+                # 扣款 & 加分
                 member.balance -= actual_spend
                 member.loyaltyPoints += points_earned
                 member.lifetimePoints += points_earned
-                
-                # 动作 4：[会员] 自动升级
-                update_member_level(member) # 🚩 你的“自动升级”规则
-                
+                update_member_level(member)
                 member.save()
 
-                # 动作 5：[账本1] 记录会员消费 (Transaction)
+                # 记账
                 member_txn = Transaction.objects.create(
                     member=member,
-                    type='REDEEM_MERCH', # 🚩 V15 模型中的类型
-                    amount = -actual_spend, # 扣除余额
-                    discountApplied = discount_amount, # 记录折扣
-                    pointsEarned = points_earned, # 记录积分
+                    type='REDEEM_MERCH',
+                    amount = -actual_spend,
+                    discountApplied = 0, # 折扣为 0
+                    pointsEarned = points_earned,
                     relatedVoucher = new_voucher,
                 )
                 
-                # 动作 6：[账本2] 记录公司成本 (FinancialLedger)
+                # 公司财务记录
                 if product_to_update.costOfGoods and product_to_update.costOfGoods > 0:
                     FinancialLedger.objects.create(
                         type='COST_OF_GOODS',
-                        amount = -product_to_update.costOfGoods, # 支出
-                        description = f"Cost for {product_to_update.name} (Ref Txn: {member_txn.transactionId})",
-                        relatedMember = member,
+                        amount = -product_to_update.costOfGoods,
+                        description = f"Cost for {product_to_update.name}",
                         relatedTransaction = member_txn
                     )
 
-                # 动作 7：[账本2] 记录公司收入 (FinancialLedger)
                 FinancialLedger.objects.create(
                     type='REVENUE_STORE',
-                    amount = actual_spend, # 收入
-                    description = f"Revenue for {item.name} (Ref Txn: {member_txn.transactionId})",
-                    relatedMember = member,
+                    amount = actual_spend,
+                    description = f"Revenue for {item.name}",
                     relatedTransaction = member_txn
                 )
 
-        # 捕获我们自己抛出的“库存不足”异常
         except Exception as e:
-            return Response({'error': f'Purchase failed: {e}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 事务成功！
-        return Response({
-            'success': f'Successfully purchased {item.name} for ${actual_spend}.',
-            'new_balance': member.balance,
-            'points_earned': points_earned
-        }, status=status.HTTP_200_OK)
-    
-    # 在 api/views.py (粘贴在 AdminPointsStoreDetailView 之后)
-
-# (确保 AnnouncementImageUploadSerializer 已经在文件顶部被导入)
-# from .serializers import ( ..., AnnouncementImageUploadSerializer, ... )
+        return Response({'success': 'Purchased successfully.', 'new_balance': member.balance}, status=status.HTTP_200_OK)
 
 class PointsStoreImageUploadView(generics.GenericAPIView):
     """
