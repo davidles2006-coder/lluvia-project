@@ -1,297 +1,112 @@
-/* src/pages/MemberPage.css - 最终完整版 (暗夜模式) */
+/* admin_portal/src/pages/MemberPage.css - V188 手机适配版 */
 
-/* --- 1. 页面主容器 --- */
 .member-page-container {
+  padding: 20px;
   max-width: 800px;
-  margin: 40px auto;
-  padding: 0 20px;
-  color: #e0e0e0; /* 全局默认灰白文字 */
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-}
-
-.page-title {
-  text-align: center;
+  margin: 0 auto;
   color: #fff;
-  margin-bottom: 30px;
-  font-size: 24px;
+  padding-bottom: 80px;
 }
 
-/* 返回按钮 */
-.back-button {
-  background: none;
-  border: none;
-  color: #1890ff;
-  cursor: pointer;
-  font-size: 16px;
-  margin-bottom: 20px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-}
-.back-button:hover {
-  text-decoration: underline;
-}
-
-/* --- 2. 会员信息卡片 --- */
-.member-profile-card {
-  background: #1e1e1e; /* 深灰背景 */
-  padding: 30px;
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+/* --- 顶部卡片 (个人信息) --- */
+.member-header {
+  background: #1e1e1e;
   border: 1px solid #333;
-  margin-bottom: 30px;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+  
+  /* PC端: 左右排列 */
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
 }
 
-/* 头像行布局 */
-.profile-header-row {
+.member-header-main {
   display: flex;
   align-items: center;
-  margin-bottom: 20px;
-  border-bottom: 1px solid #333;
-  padding-bottom: 20px;
+  gap: 20px;
 }
 
-/* 头像样式 */
-.member-avatar-img {
+/* 🚩 头像样式：限制大小 */
+.member-avatar-large {
   width: 80px;
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #D4AF37; /* 金色边框 */
-  background-color: #000;
-  margin-right: 20px;
+  border: 3px solid #D4AF37;
+  background: #000;
+  flex-shrink: 0;
 }
 
-/* 会员名字 (修复: 强制亮白色) */
-.profile-name {
-  margin: 0;
-  color: #ffffff; 
-  font-size: 26px;
-  font-weight: bold;
-  line-height: 1.2;
-}
+.member-header-info h2 { margin: 0 0 5px 0; color: #fff; font-size: 20px; }
+.member-id { color: #888; font-size: 12px; margin: 0 0 8px 0; }
 
-/* 会员邮箱 */
-.profile-email {
-  color: #888;
-  font-size: 14px;
-  margin-top: 5px;
-  display: block;
-}
+.member-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.badge { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; text-transform: uppercase; }
+.level-bronze { background: #cd7f32; color: #000; }
+.level-silver { background: #c0c0c0; color: #000; }
+.level-gold { background: #ffd700; color: #000; }
+.level-platinum { background: #e5e4e2; color: #333; }
+.level-diamond { background: #b9f2ff; color: #000; }
 
-/* 资料网格 */
-.profile-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-/* 资料项 */
-.profile-item {
+/* 右侧大数字 (余额/积分) */
+.member-stats {
   display: flex;
-  flex-direction: column;
+  gap: 30px;
+  text-align: right;
 }
 
-.profile-item .label {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 5px;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
+.stat-item { display: flex; flex-direction: column; }
+.stat-item label { font-size: 12px; color: #888; }
+.stat-value { font-size: 24px; font-weight: bold; font-family: monospace; }
+.stat-value.balance { color: #2ecc71; }
+.stat-value.points { color: #D4AF37; }
 
-.profile-item .value {
-  font-size: 18px;
-  color: #eee;
-  font-weight: 500;
-}
-
-.profile-item .highlight {
-  color: #2ecc71; /* 余额显示绿色 */
-  font-weight: bold;
-  font-family: 'Courier New', Courier, monospace;
-}
-
-/* --- 3. Tab 导航栏 --- */
-.operation-tabs {
+/* --- Tabs 按钮 --- */
+.member-tabs {
   display: flex;
   gap: 10px;
-  margin-bottom: 0; /* 贴着下面的内容区 */
-}
-
-.operation-tabs button {
-  padding: 12px 25px;
-  border: none;
-  background: #2c2c2c; /* 未选中状态背景 */
-  font-size: 16px;
-  cursor: pointer;
-  color: #aaa;
-  border-radius: 8px 8px 0 0; /* 只有上面圆角 */
-  transition: all 0.3s;
-  flex: 1; /* 按钮等宽 */
-}
-
-.operation-tabs button:hover {
-  background: #3a3a3a;
-  color: #fff;
-}
-
-.operation-tabs button.active {
-  background-color: #0056b3; /* 选中状态：深蓝色 */
-  color: #fff;
-  font-weight: bold;
-}
-
-/* --- 4. Tab 内容容器 --- */
-.tab-content-wrapper {
-  background: #1e1e1e;
-  padding: 30px;
-  border-radius: 0 0 8px 8px; /* 下方圆角 */
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
-  border: 1px solid #333;
-  border-top: none; /* 去掉顶边框，和Tab融合 */
-  min-height: 300px;
-}
-
-/* 标题样式 (Recharge/Consume) */
-.tab-inner-container h3 {
-  color: #fff;
-  margin-top: 0;
   margin-bottom: 20px;
-  font-size: 20px;
-  border-left: 4px solid #0056b3;
-  padding-left: 10px;
+  border-bottom: 1px solid #333;
+  padding-bottom: 10px;
+  overflow-x: auto;
 }
 
-/* --- 5. 充值 Tab 样式 --- */
-.tiers-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 15px;
+.tab-btn {
+  background: none; border: none; color: #888; font-size: 16px;
+  padding: 8px 15px; cursor: pointer; white-space: nowrap;
+  border-radius: 20px; transition: 0.2s;
 }
+.tab-btn.active { background: #D4AF37; color: #000; font-weight: bold; }
 
-.tier-card {
-  background-color: #2c2c2c;
-  border: 2px solid #444;
-  border-radius: 8px;
-  padding: 20px 10px;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+/* --- 📱 手机端强制适配 (核心修复) --- */
+@media (max-width: 768px) {
+  .member-page-container { padding: 10px; }
+
+  /* 1. 卡片改为上下布局 */
+  .member-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  /* 2. 头像和名字保持横排，但头像缩小 */
+  .member-avatar-large {
+    width: 60px;  /* 手机上更小一点 */
+    height: 60px;
+  }
+
+  /* 3. 余额和积分 左右撑开，并在一条线上 */
+  .member-stats {
+    width: 100%;
+    display: flex;
+    justify-content: space-between; /* 左一个右一个 */
+    text-align: left;
+    border-top: 1px solid #333; /* 加条线分隔 */
+    padding-top: 15px;
+  }
+  
+  .stat-item { align-items: flex-start; }
+  .stat-item:last-child { align-items: flex-end; }
 }
-
-.tier-card:hover {
-  border-color: #0056b3;
-  background-color: #333;
-  transform: translateY(-2px);
-}
-
-.tier-amount {
-  font-size: 24px;
-  font-weight: bold;
-  color: #2ecc71; /* 绿色金额 */
-  margin-bottom: 5px;
-}
-
-.tier-bonus {
-  font-size: 12px;
-  color: #aaa;
-}
-
-/* --- 6. 消费 Tab 样式 --- */
-.consume-form .form-group {
-  margin-bottom: 20px;
-}
-
-/* 共用的暗色输入框样式 (也可以在 ConsumeTab.js 里直接用 className="admin-input") */
-.consume-form input[type="number"] {
-  width: 100%;
-  padding: 15px;
-  font-size: 24px;
-  background-color: #2c2c2c;
-  border: 2px solid #444;
-  border-radius: 8px;
-  color: #2ecc71; /* 输入金额显示绿色 */
-  text-align: center;
-  font-weight: bold;
-  box-sizing: border-box;
-}
-
-.consume-form input:focus {
-  border-color: #e74c3c;
-  outline: none;
-}
-
-.btn-consume {
-  background-color: #e74c3c; /* 红色扣款 */
-  width: 100%;
-  padding: 15px;
-  font-size: 18px;
-  margin-top: 10px;
-}
-.btn-consume:hover { background-color: #c0392b; }
-
-/* --- 7. 核销 (Redeem) Tab 样式 --- */
-.vouchers-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.voucher-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background-color: #2c2c2c;
-  border: 1px solid #444;
-  padding: 15px 20px;
-  border-radius: 8px;
-}
-
-.voucher-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.voucher-name {
-  color: #D4AF37; /* 金色券名 */
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.voucher-date {
-  font-size: 12px;
-  color: #888;
-  margin-top: 4px;
-}
-
-.btn-redeem {
-  background-color: #0056b3;
-  padding: 8px 20px;
-  font-size: 14px;
-}
-.btn-redeem:hover { background-color: #004494; }
-
-/* --- 通用按钮 --- */
-.btn-action {
-  color: white;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.2s;
-}
-
-.btn-action:disabled {
-  background-color: #555 !important;
-  color: #888;
-  cursor: not-allowed;
-}
-
-/* 加载和错误信息 */
-.loading-message { color: #aaa; text-align: center; margin-top: 50px; font-size: 18px;}
-.error-message { color: #ff6b6b; text-align: center; margin-top: 50px; font-size: 18px;}
