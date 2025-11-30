@@ -414,9 +414,17 @@ class AdminMemberSearchView(APIView):
 
 # api/views.py 中的 AdminRechargeView
 
+# api/views.py -> AdminRechargeView
+
 class AdminRechargeView(generics.GenericAPIView):
     """
-    V146 修复: 充值逻辑 (增加 None 等级保护)
+    V180 商业逻辑: 
+    1. 充值不加积分。
+    2. 充值福利：
+       - $300 -> 升级 Silver
+       - $500 -> 升级 Gold
+       - $1000 -> 升级 Platinum
+       - 并延长有效期 1 年
     """
     serializer_class = AdminRechargeSerializer
     permission_classes = [IsStaffUser]
@@ -434,33 +442,42 @@ class AdminRechargeView(generics.GenericAPIView):
         except (Member.DoesNotExist, RechargeTier.DoesNotExist):
             return Response({'error': 'Data not found.'}, status=status.HTTP_404_NOT_FOUND)
 
-        # 🚩 核心修复：安全地获取当前等级名称
-        # 如果 member.level 是 None (新号)，就当作 'Bronze' 处理，防止报错
-        if member.level:
-            current_level_name = member.level.levelName
-        else:
-            current_level_name = 'Bronze'
+        # 🚩 1. 判定充值福利等级
+        target_level_name = None
+        if tier.amount >= 1000:
+            target_level_name = 'Platinum'
+        elif tier.amount >= 500:
+            target_level_name = 'Gold'
+        elif tier.amount >= 300:
+            target_level_name = 'Silver'
 
-        # 检查是否符合 "首充升级" (Bronze -> Silver)
-        upgraded_via_promo = False
-        if current_level_name == 'Bronze' and tier.amount >= 300:
-            try:
-                silver_level = Level.objects.get(levelName='Silver')
-                member.level = silver_level
-                upgraded_via_promo = True
-            except Level.DoesNotExist:
-                pass 
+        promo_message = ""
 
         try:
             with transaction.atomic():
-                # 1. 加钱
+                # 2. 加余额
                 member.balance += tier.amount
                 member.balanceExpiryDate = timezone.now() + timezone.timedelta(days=365)
-                
-                # 2. 保存 (触发 models.py 里的只升不降逻辑)
+
+                # 3. 处理等级跳级 (只升不降)
+                if target_level_name:
+                    try:
+                        target_level = Level.objects.get(levelName=target_level_name)
+                        current_min_points = member.level.minPoints if member.level else 0
+                        
+                        # 只有当目标等级 > 当前等级时，才执行升级
+                        if target_level.minPoints > current_min_points:
+                            member.level = target_level
+                            # 🚩 升级福利：有效期设为 1 年后
+                            member.levelExpiryDate = timezone.now().date() + timezone.timedelta(days=365)
+                            promo_message = f" (UPGRADED to {target_level_name}!)"
+                    except Level.DoesNotExist:
+                        pass # 如果数据库没配这个等级，就忽略
+
+                # 4. 保存 (models.py 的 update_member_level 会再次运行，但不会覆盖我们的升级)
                 member.save()
 
-                # 3. 记账
+                # 5. 记账
                 Transaction.objects.create(
                     member=member,
                     staff=request.user,
@@ -469,7 +486,7 @@ class AdminRechargeView(generics.GenericAPIView):
                     pointsEarned=0 
                 )
 
-                # 4. 发券
+                # 6. 发券
                 if tier.grantVoucherType and tier.grantVoucherCount > 0:
                     for _ in range(tier.grantVoucherCount):
                         Voucher.objects.create(
@@ -477,15 +494,9 @@ class AdminRechargeView(generics.GenericAPIView):
                             voucherType=tier.grantVoucherType,
                         )
         except Exception as e:
-            # 打印错误到后台日志，方便排查
-            print(f"🔥 Recharge Error: {e}") 
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-        msg = f'Successfully recharged ${tier.amount}.'
-        if upgraded_via_promo:
-            msg += ' (PROMO: Upgraded to Silver!)'
-
-        return Response({'success': msg}, status=status.HTTP_200_OK)
+        return Response({'success': f'Successfully recharged ${tier.amount}.{promo_message}'}, status=status.HTTP_200_OK)
 
 
 class AdminConsumeView(generics.GenericAPIView):

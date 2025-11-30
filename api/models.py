@@ -36,17 +36,15 @@ class MemberManager(BaseUserManager):
 
 # api/models.py (完整的 Member 类，包含 V147 修复)
 
+# api/models.py -> 替换整个 Member 类
+
 class Member(AbstractBaseUser, PermissionsMixin):
-    """
-    V147 终极版: 包含等级保护、法律证据和角色权限自动化
-    """
     memberId = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True) 
     phone = models.CharField(max_length=50, unique=True) 
     nickname = models.CharField(max_length=100, blank=True)
     dob = models.DateField(null=True, blank=True) 
 
-    # 🚩 V77: 员工角色定义 (用于 RBAC)
     ROLE_CHOICES = [
         ('MEMBER', '普通会员'),
         ('CASHIER', '收银员'),
@@ -56,28 +54,25 @@ class Member(AbstractBaseUser, PermissionsMixin):
     ]
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='MEMBER')
 
-    # V73: 法律证据字段
     isTermsAgreed = models.BooleanField(default=False) 
     termsAgreedTime = models.DateTimeField(null=True, blank=True) 
 
-    # V11: 忠诚度核心
+    # 忠诚度核心
     level = models.ForeignKey('Level', on_delete=models.SET_NULL, null=True, blank=True) 
+    # 🚩 新增: 等级过期时间 (一年有效期)
+    levelExpiryDate = models.DateField(null=True, blank=True)
+    
     loyaltyPoints = models.BigIntegerField(default=0) 
     lifetimePoints = models.BigIntegerField(default=0) 
 
-    # V8/V12: 个性化与社交
     avatarUrl = models.URLField(max_length=1024, blank=True)
     flair = models.CharField(max_length=100, blank=True)
     socialOptIn = models.BooleanField(default=False)
 
-    # V4: 财务
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     balanceExpiryDate = models.DateField(null=True, blank=True)
-
-    # 补回丢失的字段，并允许为空
     preferredLanguage = models.CharField(max_length=5, default='en', null=True, blank=True)
 
-    # Django 必需字段
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False) 
     createdAt = models.DateTimeField(auto_now_add=True)
@@ -88,61 +83,62 @@ class Member(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['phone', 'nickname'] 
     
     # -----------------------------------------------
-    # 🚩 核心逻辑 Methods (V76 & V147)
+    # 🚩 V180 核心逻辑: 升级、保级与降级
     # -----------------------------------------------
-
-    # api/models.py -> Member 类 -> update_member_level 方法
 
     def update_member_level(self):
         from .models import Level 
-        
-        # 🚩 V161 修复: 员工不需要等级
-        # 如果角色不是普通会员 (即是员工)，强制清空等级，并直接结束
+        from django.utils import timezone
+        import datetime
+
+        # 0. 如果是员工，不需要等级
         if self.role != 'MEMBER':
             self.level = None
             return
 
-        # --- 以下是针对 MEMBER (普通会员) 的正常逻辑 ---
+        # 1. 基础数据准备
+        today = timezone.now().date()
+        
+        # 获取所有等级规则 (按分数从低到高排序: Bronze, Silver, Gold...)
+        all_levels = list(Level.objects.all().order_by('minPoints'))
+        if not all_levels: return
 
-        # 1. 如果当前没有 Level，先赋 Bronze
-        if not self.level:
-            try:
-                self.level = Level.objects.get(levelName='Bronze')
-            except Level.DoesNotExist:
-                return 
-
-        # 2. 根据积分计算等级
-        calculated_level = Level.objects.filter(
-            minPoints__lte=self.lifetimePoints
-        ).order_by('-minPoints').first()
-
-        if calculated_level:
-            # 3. 只升不降保护
-            if calculated_level.minPoints > self.level.minPoints:
-                self.level = calculated_level
-
-
-    # api/models.py -> Member 类 -> save 方法
+        # 计算"按积分理应所在的等级" (实力等级)
+        earned_level = all_levels[0] # 默认 Bronze
+        for lvl in all_levels:
+            if self.lifetimePoints >= lvl.minPoints:
+                earned_level = lvl
+        
+        # 2. 检查是否过期 (Downgrade Check)
+        if self.levelExpiryDate and today > self.levelExpiryDate:
+            # 📅 已过期！
+            # 强制重新计算：如果积分不够维持当前等级，就会掉下去
+            self.level = earned_level
+            # 重置有效期为今天起的一年 (或者设为 None，等待下次升级)
+            self.levelExpiryDate = today + datetime.timedelta(days=365)
+        
+        # 3. 正常升级逻辑 (Upgrade Check)
+        else:
+            # 如果还没过期，或者是新号
+            if not self.level:
+                self.level = earned_level
+            else:
+                # 只有当"实力等级" > "当前等级"时，才升级 (只升不降，除非过期)
+                if earned_level.minPoints > self.level.minPoints:
+                    self.level = earned_level
+                    # 🚩 升级奖励：有效期顺延 1 年
+                    self.levelExpiryDate = today + datetime.timedelta(days=365)
 
     def save(self, *args, **kwargs):
-        # 1. 自动更新等级
-        self.update_member_level() 
-        
-        # 2. 🚩 核心修复：权限自动控制逻辑
-        # 如果是超级管理员，强制赋予 Staff 权限 (防止被误伤)
         if self.is_superuser:
             self.is_staff = True
-            # 可选：如果老板还是默认的 MEMBER 角色，自动修正为 SUPERUSER
-            if self.role == 'MEMBER':
-                self.role = 'SUPERUSER'
-
-        # 普通逻辑：根据角色判断
+            if self.role == 'MEMBER': self.role = 'SUPERUSER'
         elif self.role == 'MEMBER':
             self.is_staff = False
         elif self.role in ['CASHIER', 'STORE_MANAGER', 'ACCOUNT_MANAGER']:
             self.is_staff = True
         
-        # 3. 保存
+        self.update_member_level() 
         super().save(*args, **kwargs)
 # 
 # 2. 忠诚度与社交 (V11/V12)
