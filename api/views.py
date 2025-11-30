@@ -56,9 +56,20 @@ def update_member_level(member):
         if new_level.levelId > member.level.levelId:
             member.level = new_level
 
+# --- 积分计算辅助函数 (请确保这段代码存在) ---
 def get_points_for_spend(member, spend_amount):
-    """ V11 蓝图 - 核心积分计算辅助函数 """
-    multiplier = member.level.pointMultiplier
+    """ 
+    V11 蓝图 - 积分计算逻辑 
+    修复: 强制将 multiplier 转为 float，防止与 Decimal 类型冲突报错
+    """
+    # 1. 如果没有等级，默认 1倍
+    if not member.level:
+         return int(spend_amount) 
+    
+    # 2. 核心修复: 强制转换类型 (Decimal -> float)
+    multiplier = float(member.level.pointMultiplier)
+    
+    # 3. 计算结果
     points_earned = spend_amount * multiplier
     return int(points_earned)
 
@@ -310,7 +321,6 @@ class SocialGalleryView(generics.ListAPIView):
 # --- V2 / V4 / V15 后勤 API (ADMIN PORTAL) ---
 #
 
-# api/views.py 中的 StaffLoginView
 
 class StaffLoginView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -354,7 +364,7 @@ class GetRechargeTiersView(generics.ListAPIView):
     serializer_class = RechargeTierSerializer
 
 
-# 这是 api/views.py 文件中的 AdminMemberSearchView (最终版 - 返回 vouchers)
+
 
 class AdminMemberSearchView(APIView):
     """
@@ -412,9 +422,8 @@ class AdminMemberSearchView(APIView):
              return Response({'error': f'Database error: {str(e)}'
 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# api/views.py 中的 AdminRechargeView
 
-# api/views.py -> AdminRechargeView
+
 
 class AdminRechargeView(generics.GenericAPIView):
     """
@@ -499,7 +508,6 @@ class AdminRechargeView(generics.GenericAPIView):
         return Response({'success': f'Successfully recharged ${tier.amount}.{promo_message}'}, status=status.HTTP_200_OK)
 
 
-# api/views.py
 
 class AdminConsumeView(generics.GenericAPIView):
     """
@@ -710,6 +718,7 @@ class AdminRedeemVoucherView(generics.GenericAPIView):
             'success': f'Successfully redeemed {product.name} (Bill: ${bill_amount}, Paid Cash: ${cash_payment})',
             'points_earned': points_earned
         }, status=status.HTTP_200_OK)
+    
 #
 # --- V16 后勤 API (Admin Portal - 商城管理) ---
 #
@@ -837,7 +846,6 @@ class AnnouncementImageUploadView(generics.GenericAPIView):
         
 
 # --- V16 会员 API (Member Portal - 广告) ---
-#
 
 class MemberAnnouncementListView(generics.ListAPIView):
     """
@@ -864,7 +872,6 @@ class MemberAnnouncementDetailView(generics.RetrieveAPIView):
 
 
 
-# api/views.py
 
 class RedeemBalanceView(generics.GenericAPIView):
     """
@@ -952,7 +959,7 @@ class RedeemBalanceView(generics.GenericAPIView):
         return Response({'success': 'Purchased successfully.', 'new_balance': member.balance}, status=status.HTTP_200_OK)
     
 
-    
+
 class PointsStoreImageUploadView(generics.GenericAPIView):
     """
     V5 蓝图: "积分商城"图片上传 (POST /api/admin/store/points/upload/)
@@ -1000,7 +1007,7 @@ class BalanceStoreImageUploadView(generics.GenericAPIView):
         image_url = settings.MEDIA_URL + filename
         return Response({'success': '图片上传成功。', 'imageUrl': image_url}, status=status.HTTP_200_OK)
     
-# api/views.py
+
 
 class FinancialReportView(generics.GenericAPIView):
     """
