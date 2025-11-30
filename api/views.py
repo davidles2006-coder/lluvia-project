@@ -503,7 +503,7 @@ class AdminRechargeView(generics.GenericAPIView):
 
 class AdminConsumeView(generics.GenericAPIView):
     """
-    V185 修正: 余额消费 -> 原价扣款 (取消 10% 折扣) -> 计算积分
+    V186 修复: 余额消费 -> 强制类型转换 (解决 Float vs Decimal 报错)
     """
     serializer_class = AdminConsumeSerializer
     permission_classes = [IsStaffUser]
@@ -515,18 +515,21 @@ class AdminConsumeView(generics.GenericAPIView):
         member = Member.objects.get(memberId=self.kwargs.get('memberId'))
         bill_amount = serializer.validated_data['amount']
 
-        # 🚩 修改：不再计算折扣，实扣金额 = 账单金额
-        actual_spend = bill_amount 
+        # 🚩 核心修复：将金额强制转换为 Decimal 类型，防止与数据库字段冲突
+        try:
+            actual_spend = Decimal(str(bill_amount))
+        except:
+            return Response({'error': 'Invalid amount format'}, status=status.HTTP_400_BAD_REQUEST)
 
         if member.balance < actual_spend:
             return Response({'error': f'Insufficient balance. Need ${actual_spend}.'}, status=status.HTTP_400_BAD_REQUEST)
 
-        # 计算积分 (按全额计算，会员反而赚了更多积分)
+        # 计算积分
         points_earned = get_points_for_spend(member, float(actual_spend))
 
         try:
             with transaction.atomic():
-                # 1. 扣余额
+                # 1. 扣余额 (现在两个都是 Decimal，不会报错了)
                 member.balance -= actual_spend
                 
                 # 2. 加积分
@@ -541,7 +544,7 @@ class AdminConsumeView(generics.GenericAPIView):
                     staff=request.user,
                     type='CONSUME_BALANCE',
                     amount = -actual_spend,
-                    discountApplied = 0, # 记录为 0
+                    discountApplied = 0,
                     pointsEarned = points_earned
                 )
         except Exception as e:
@@ -861,9 +864,11 @@ class MemberAnnouncementDetailView(generics.RetrieveAPIView):
 
 
 
+# api/views.py
+
 class RedeemBalanceView(generics.GenericAPIView):
     """
-    V185 修正: 余额商城购买 -> 原价扣款 (取消折扣)
+    V187 修复: 余额商城购买 -> 原价扣款 (无折扣) -> 类型安全
     """
     serializer_class = RedeemBalanceSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -885,9 +890,11 @@ class RedeemBalanceView(generics.GenericAPIView):
         
         product = item.linkedVoucherType
 
-        # 🚩 修改：取消折扣逻辑
-        actual_spend = item.balancePrice # 原价
+        # 🚩 核心修改：移除折扣，确保是 Decimal 类型
+        # item.balancePrice 本身就是 Decimal，但我们用 Decimal() 包裹一下以防万一
+        actual_spend = Decimal(str(item.balancePrice))
         
+        # 计算积分 (转成 float 传给辅助函数)
         points_earned = get_points_for_spend(member, float(actual_spend))
 
         if member.balance < actual_spend:
@@ -918,7 +925,7 @@ class RedeemBalanceView(generics.GenericAPIView):
                     member=member,
                     type='REDEEM_MERCH',
                     amount = -actual_spend,
-                    discountApplied = 0, # 折扣为 0
+                    discountApplied = 0, # 无折扣
                     pointsEarned = points_earned,
                     relatedVoucher = new_voucher,
                 )
@@ -943,7 +950,9 @@ class RedeemBalanceView(generics.GenericAPIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({'success': 'Purchased successfully.', 'new_balance': member.balance}, status=status.HTTP_200_OK)
+    
 
+    
 class PointsStoreImageUploadView(generics.GenericAPIView):
     """
     V5 蓝图: "积分商城"图片上传 (POST /api/admin/store/points/upload/)
