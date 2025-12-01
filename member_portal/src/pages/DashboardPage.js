@@ -205,19 +205,23 @@ function DashboardPage() {
 // 子组件区域
 // ==================================================
 
+// src/pages/DashboardPage.js (底部的 ProfileTab 子组件)
+
 const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) => { 
-  const userLevel = userData.level ? userData.level.levelName : 'Bronze';
+  // 🚩 核心修复: 明确定义 currentLevelName
+  const currentLevelName = userData.level ? userData.level.levelName : 'Bronze';
   const points = userData.lifetimePoints || 0;
   
-  // 过期时间格式化
   const expiryDate = userData.levelExpiryDate 
       ? new Date(userData.levelExpiryDate).toLocaleDateString() 
       : t('No Expiry');
 
+  // 计算下一级
   let nextLevelPoints = 500; 
   let nextLevelName = 'Silver';
   let isMaxLevel = false;
 
+  // 这里使用了 currentLevelName，所以上面必须定义它
   switch (currentLevelName) {
       case 'Bronze':
           nextLevelName = 'Silver';
@@ -237,16 +241,16 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) =>
           break;
       case 'Diamond':
           nextLevelName = 'Max';
-          nextLevelPoints = 6000; // 或者设为更高
+          nextLevelPoints = 6000;
           isMaxLevel = true;
           break;
       default:
-          // 默认情况
           nextLevelName = 'Silver';
           nextLevelPoints = 500;
   }
   
   const progressPercent = isMaxLevel ? 100 : Math.min((points / nextLevelPoints) * 100, 100);
+
   const [animatedWidth, setAnimatedWidth] = useState(0);
   useEffect(() => { setTimeout(() => setAnimatedWidth(progressPercent), 100); }, [progressPercent]);
 
@@ -258,7 +262,8 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) =>
           <div className={`v11-avatar-border level-border-${levelClass}`}></div>
         </div>
         <h3 className="v11-username">{userData.nickname || '会员'}</h3>
-        <span className={`v11-level-badge level-badge-${levelClass}`}>{t(userLevel)}</span>
+        {/* 这里也用到了 currentLevelName */}
+        <span className={`v11-level-badge level-badge-${levelClass}`}>{t(currentLevelName)}</span>
         <div style={{marginTop: '10px', fontSize: '12px', color: '#888'}}>
             {t('Valid until')}: <span style={{color: '#D4AF37'}}>{expiryDate}</span>
         </div>
@@ -266,10 +271,9 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) =>
 
       <div className={`v11-card v11-info-card level-${levelClass}-frame`}>
         <div className="v11-info-header"><h4>{t('My Profile')}</h4><button className="btn-ghost" onClick={onEditClick}>{t('Edit Profile')}</button></div>
-        <div className="v11-info-grid"><div><strong>{t('Email')}:</strong> {userData.email}</div><div><strong>{t('Phone')}:</strong> {userData.phone || 'N/A'}</div><div><strong>{t('Balance')}:</strong> ${userData.balance || '0.00'}</div><div><strong>{t('Points')}:</strong> {userData.loyaltyPoints || 0}</div></div>
+        <div className="v11-info-grid"><div><strong>{t('Email')}:</strong> {userData.email}</div><div><strong>{t('Phone')}:</strong> {userData.phone || 'N/A'}</div><div><strong>{t('Birthday')}:</strong> {userData.dob || 'N/A'}</div><div><strong>{t('Balance')}:</strong> ${userData.balance || '0.00'}</div><div><strong>{t('Available Points')}:</strong> {userData.loyaltyPoints || 0}</div></div>
         <hr className="v11-divider" />
         
-        {/* 🚩 确保这个按钮存在！ */}
         <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'10px'}}>
             <h4 style={{margin:0}}>{t('Points Progress')} { !isMaxLevel && `(${t('Next')}: ${t(nextLevelName)})` }</h4>
             <button 
