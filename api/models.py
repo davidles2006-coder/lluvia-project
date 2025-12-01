@@ -98,36 +98,54 @@ class Member(AbstractBaseUser, PermissionsMixin):
 
         # 1. 基础数据准备
         today = timezone.now().date()
+        current_level = self.level
+
+        if not current_level:
+            try:
+                current_level = Level.objects.get(levelName='Bronze')
+                self.level = current_level
+                self.levelExpiryDate = today + datetime.timedelta(days=365)
+            except Level.DoesNotExist:
+                return
         
         # 获取所有等级规则 (按分数从低到高排序: Bronze, Silver, Gold...)
         all_levels = list(Level.objects.all().order_by('minPoints'))
-        if not all_levels: return
 
-        # 计算"按积分理应所在的等级" (实力等级)
-        earned_level = all_levels[0] # 默认 Bronze
-        for lvl in all_levels:
-            if self.lifetimePoints >= lvl.minPoints:
-                earned_level = lvl
-        
-        # 2. 检查是否过期 (Downgrade Check)
+        # --- A. 检查过期 (结算日) ---
         if self.levelExpiryDate and today > self.levelExpiryDate:
-            # 📅 已过期！
-            # 强制重新计算：如果积分不够维持当前等级，就会掉下去
-            self.level = earned_level
-            # 重置有效期为今天起的一年 (或者设为 None，等待下次升级)
+            # 结算时刻：根据这一年积攒的 XP (lifetimePoints) 决定新等级
+            new_level = all_levels[0] # 默认跌回 Bronze
+            for lvl in all_levels:
+                if self.lifetimePoints >= lvl.minPoints:
+                    new_level = lvl
+            
+            # 执行变更
+            self.level = new_level
             self.levelExpiryDate = today + datetime.timedelta(days=365)
+            self.lifetimePoints = 0 # 🚩 关键：结算后，经验归零，新的一年重新开始！
+            return # 结算完成，退出函数
         
-        # 3. 正常升级逻辑 (Upgrade Check)
-        else:
-            # 如果还没过期，或者是新号
-            if not self.level:
-                self.level = earned_level
-            else:
-                # 只有当"实力等级" > "当前等级"时，才升级 (只升不降，除非过期)
-                if earned_level.minPoints > self.level.minPoints:
-                    self.level = earned_level
-                    # 🚩 升级奖励：有效期顺延 1 年
-                    self.levelExpiryDate = today + datetime.timedelta(days=365)
+        # --- B. 检查升级 (平时) ---
+        # 只有当 XP 足够升级到 *更高级别* 时才触发
+        # (比如当前是 Silver(500)，必须攒够 1500 才能升 Gold)
+        
+        # 找到下一个等级
+        next_level = None
+        for lvl in all_levels:
+            if lvl.minPoints > current_level.minPoints: # 找比当前高的
+                if self.lifetimePoints >= lvl.minPoints:
+                    next_level = lvl
+                # 注意：这里不 break，因为可能一下子升两级（比如一次消费 10000）
+
+        if next_level:
+            # 触发升级
+            self.level = next_level
+            self.levelExpiryDate = today + datetime.timedelta(days=365) # 刷新有效期
+            
+            # 🚩 关键：升级后，扣除升级所需的经验值 (或者直接归零，看你策略)
+            # 这里采用 "归零制" (Reset)，意味着到了新等级，必须从头开始攒下一级的经验
+            self.lifetimePoints = 0
+
 
     def save(self, *args, **kwargs):
         if self.is_superuser:

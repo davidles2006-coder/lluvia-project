@@ -479,6 +479,7 @@ class AdminRechargeView(generics.GenericAPIView):
                             member.level = target_level
                             # 🚩 升级福利：有效期设为 1 年后
                             member.levelExpiryDate = timezone.now().date() + timezone.timedelta(days=365)
+                            member.lifetimePoints = 0
                             promo_message = f" (UPGRADED to {target_level_name}!)"
                     except Level.DoesNotExist:
                         pass # 如果数据库没配这个等级，就忽略
