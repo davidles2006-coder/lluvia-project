@@ -1,9 +1,8 @@
-# api/admin.py - V150 (修复后台无法创建账号/无密码框问题)
-
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django import forms
+from django.db import models
+# 👇 这里导入了模型，不需要在下面重新写一遍 class Member...
 from .models import (
     Member, Level, Voucher, VoucherType, Transaction, 
     RechargeTier, Reward_Points_Store, Reward_Balance_Store, 
@@ -11,17 +10,13 @@ from .models import (
 )
 
 # -----------------------------------------------------------
-# 1. 自定义表单 (关键修复)
+# 1. 自定义表单 (Custom Forms)
 # -----------------------------------------------------------
-
-# 创建用户时使用的表单 (包含密码)
 class MemberCreationForm(UserCreationForm):
     class Meta:
         model = Member
-        # 这里只列出非密码字段，密码字段由 UserCreationForm 自动添加
         fields = ('email', 'phone', 'nickname', 'role', 'is_staff', 'is_superuser')
 
-# 修改用户时使用的表单
 class MemberChangeForm(UserChangeForm):
     class Meta:
         model = Member
@@ -30,20 +25,17 @@ class MemberChangeForm(UserChangeForm):
 # -----------------------------------------------------------
 # 2. Member Admin 配置
 # -----------------------------------------------------------
-# 2. Member Admin 配置
 @admin.register(Member)
 class MemberAdmin(BaseUserAdmin):
-    # 指定表单
     form = MemberChangeForm
     add_form = MemberCreationForm
 
-    # 列表页显示
     list_display = ('email', 'nickname', 'phone', 'role', 'level', 'balance', 'is_staff')
     list_filter = ('role', 'is_staff', 'level')
     search_fields = ('email', 'phone', 'nickname')
     ordering = ('email',)
 
-    # 详情页布局 (修改现有用户)
+    # 修改用户时的界面
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('nickname', 'phone', 'dob', 'avatarUrl')}),
@@ -52,16 +44,17 @@ class MemberAdmin(BaseUserAdmin):
         ('Legal', {'fields': ('isTermsAgreed', 'termsAgreedTime')}),
     )
 
-    # 🚩 核心修复：删除 'password_2'
-    # (只写 'password' 即可，UserCreationForm 会自动显示两个密码框)
+    # 🚩 添加新用户时的界面 (修复了 500 错误)
+    # 这里的 fields 必须只包含数据库里有的或者是 form 处理过的
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone', 'role', 'is_staff', 'password'), 
+            'fields': ('email', 'phone', 'role', 'is_staff', 'is_superuser', 'password', 'password_2'), 
         }),
     )
+
 # -----------------------------------------------------------
-# 3. 其他模型注册 (保持不变)
+# 3. 其他模型注册
 # -----------------------------------------------------------
 @admin.register(Level)
 class LevelAdmin(admin.ModelAdmin):
@@ -69,12 +62,12 @@ class LevelAdmin(admin.ModelAdmin):
 
 @admin.register(VoucherType)
 class VoucherTypeAdmin(admin.ModelAdmin):
-    list_display = ['name', 'value', 'expiryDays', 'costOfGoods', 'stockCount']
+    list_display = ['name', 'value', 'expiryDays', 'stockCount']
 
 @admin.register(Voucher)
 class VoucherAdmin(admin.ModelAdmin):
-    list_display = ['voucherId', 'member', 'voucherType', 'status', 'expiryDate']
-    search_fields = ['member__nickname', 'member__phone']
+    list_display = ['voucherId', 'member', 'voucherType', 'status']
+    search_fields = ['member__nickname']
     list_filter = ['status']
 
 @admin.register(RechargeTier)
@@ -83,8 +76,7 @@ class RechargeTierAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ['timestamp', 'member', 'type', 'amount', 'staff']
-    search_fields = ['member__nickname', 'member__phone']
+    list_display = ['timestamp', 'member', 'type', 'amount']
     list_filter = ['type']
 
 @admin.register(Reward_Points_Store)
@@ -102,8 +94,6 @@ class AnnouncementAdmin(admin.ModelAdmin):
 @admin.register(FinancialLedger)
 class FinancialLedgerAdmin(admin.ModelAdmin):
     list_display = ('timestamp', 'type', 'amount', 'description')
-    
-    # 只读权限
     def has_add_permission(self, request): return False
     def has_change_permission(self, request, obj=None): return False
     def has_delete_permission(self, request, obj=None): return False
