@@ -616,118 +616,106 @@ class AdminTrackSpendView(generics.GenericAPIView):
         }, status=status.HTTP_200_OK)
 
 
+# api/views.py 中的 AdminRedeemVoucherView
+
 class AdminRedeemVoucherView(generics.GenericAPIView):
-    """ V13 蓝图: "智能"核销代金券 (POST /api/admin/redeem_voucher/) """
+    """ 
+    V193 修复: 智能核销代金券 (修复类型错误) 
+    """
     serializer_class = AdminRedeemVoucherSerializer
     permission_classes = [IsStaffUser]
-
-    # 在 api/views.py (替换 AdminRedeemVoucherView 的 post 方法)
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
         voucher_id = serializer.validated_data['voucher_id']
-        # V5 修复：获取“可选”的账单金额
-        bill_amount = serializer.validated_data['bill_amount'] 
+        # 🚩 修复 1: 获取账单金额 (可能是 None)
+        raw_bill_amount = serializer.validated_data.get('bill_amount', 0)
 
         try:
-            # (我们必须 select_related 'voucherType' 来检查它是什么类型)
             voucher = Voucher.objects.select_related('voucherType', 'member', 'member__level').get(voucherId=voucher_id)
             member = voucher.member
-            product = voucher.voucherType # (这就是 "T-Shirt" 或 "$50 Off")
+            product = voucher.voucherType
 
-            # --- 检查代金券是否有效 (V13 逻辑) ---
             if voucher.status == 'used':
                 return Response({'error': 'Voucher already used.'}, status=status.HTTP_400_BAD_REQUEST)
-            if voucher.expiryDate < timezone.now():
+            if voucher.expiryDate and voucher.expiryDate < timezone.now():
+                # 顺便更新状态
                 voucher.status = 'expired'
                 voucher.save()
                 return Response({'error': 'Voucher is expired.'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # --- 
-            # --- V5 蓝图：智能核销逻辑
-            # --- 
-            
-            # 检查：这是“产品券”(T-Shirt) 吗？
-            # (我们检查 Value 是否为 0，并且 Cost 大于等于 0)
+            # 判断类型
             is_product_voucher = (product.value == 0 and product.costOfGoods is not None and product.costOfGoods >= 0)
 
             if is_product_voucher:
-                # --- 流程 A：核销“产品券” (T-Shirt) ---
-                # (会员已付款，库存/成本已记录。我们只标记为"已使用")
-                
+                # --- A. 产品券 (免费) ---
                 with transaction.atomic():
                     voucher.status = 'used'
                     voucher.usedDate = timezone.now()
                     voucher.save()
-                
-                # (我们不需要创建 Transaction 或 FinancialLedger)
-                
-                return Response({
-                    'success': f'Product voucher "{product.name}" successfully redeemed.',
-                    'points_earned': 0 # (核销时不产生积分)
-                }, status=status.HTTP_200_OK)
+                return Response({'success': f'{product.name} redeemed.', 'points_earned': 0}, status=status.HTTP_200_OK)
 
             else:
-                # --- 流程 B：核销“折扣券” ($50 Off) ---
-                # (这是我们旧的 V13 逻辑，它需要 bill_amount)
+                # --- B. 现金券 ($50 Off) ---
+                # 🚩 修复 2: 强制转换 bill_amount 为 Decimal
+                try:
+                    bill_amount = Decimal(str(raw_bill_amount))
+                except:
+                    return Response({'error': 'Invalid bill amount format.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                # 检查账单金额
                 if bill_amount <= 0:
-                    return Response({'error': 'Bill amount is required for discount vouchers.'}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({'error': 'Bill amount required for discount vouchers.'}, status=status.HTTP_400_BAD_REQUEST)
                 
-                voucher_threshold = product.threshold
-                if bill_amount < voucher_threshold:
-                    return Response(
-                        {'error': f'Bill amount (${bill_amount}) does not meet the voucher threshold (${voucher_threshold}).'},
-                        status=status.HTTP_400_BAD_REQUEST
-                    )
+                if bill_amount < product.threshold:
+                    return Response({'error': f'Min spend ${product.threshold} required.'}, status=status.HTTP_400_BAD_REQUEST)
 
-                # 计算支付
-                voucher_value = product.value
-                cash_payment = bill_amount - voucher_value
+                # 计算尾款
+                cash_payment = bill_amount - product.value
                 points_earned = 0
+
+                # 🚩 修复 3: 如果有尾款，计算积分 (传入 float)
                 if cash_payment > 0:
-                    # (我们只在“现金支付”的部分计算积分)
-                    points_earned = get_points_for_spend(member, cash_payment)
+                    points_earned = get_points_for_spend(member, float(cash_payment))
 
                 with transaction.atomic():
                     voucher.status = 'used'
                     voucher.usedDate = timezone.now()
                     voucher.save()
 
+                    # 加积分
                     member.loyaltyPoints += points_earned
                     member.lifetimePoints += points_earned
-
                     update_member_level(member)
                     member.save()
 
-                    # 🚩 V5 终极修复：移除了非法的 'description' 字段
+                    # 记账 (券)
                     Transaction.objects.create(
-                        member=voucher.member,
+                        member=member,
                         staff=request.user,
                         type='CONSUME_VOUCHER',
-                        amount = -voucher_value,
+                        amount = -product.value, # 记录券面值
                         relatedVoucher = voucher
                     )
+
+                    # 记账 (尾款)
                     if cash_payment > 0:
                         Transaction.objects.create(
                             member=member,
                             staff=request.user,
                             type='CONSUME_CASH',
-                            amount = -cash_payment,
+                            amount = -cash_payment, # 记录实付现金
                             pointsEarned = points_earned
                         )
 
         except Voucher.DoesNotExist:
-            return Response({'error': 'Voucher ID not found.'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'Voucher not found.'}, status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            # 🚩 V5 修复：返回 'detail' (这样 React 才能捕获它)
-            return Response({'detail': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         return Response({
-            'success': f'Successfully redeemed {product.name} (Bill: ${bill_amount}, Paid Cash: ${cash_payment})',
+            'success': f'Redeemed {product.name}. Paid extra: ${cash_payment}', 
             'points_earned': points_earned
         }, status=status.HTTP_200_OK)
     
