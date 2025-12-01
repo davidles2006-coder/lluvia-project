@@ -1,220 +1,204 @@
-// src/pages/admin/FinancialReportPage.js - V70 (月度查询功能版)
-import React, { useState, useEffect, useMemo } from 'react';
+// src/pages/admin/FinancialReportPage.js - V200 (日期日结版)
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
-import './AdminPageStyles.css';
-
 import { API_BASE_URL as API_ROOT } from '../../config';
+import '../AdminPageStyles.css'; 
 
-const API_BASE_URL = `${API_ROOT}/api`; // 🚩 加上 /api/ 变成最终 API 地址
+const API_BASE_URL = `${API_ROOT}/api`;
 
 const FinancialReportPage = () => {
     const { t } = useTranslation();
     const staffToken = localStorage.getItem('staffToken');
-
-    const [rawData, setRawData] = useState(null); 
-    const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState('recharge'); 
     
-    const [timeFilter, setTimeFilter] = useState('month'); // 默认看本月
-    
-    // 🚩 V70 新增: 存储选中的月份 (默认为当前月份 YYYY-MM)
-    const [selectedMonth, setSelectedMonth] = useState(new Date().toISOString().slice(0, 7));
+    // 默认选今天 (格式 YYYY-MM-DD)
+    // 注意: new Date().toISOString() 是 UTC 时间，如果想要本地时间，需要手动处理
+    // 这里用简单的方法获取本地 YYYY-MM-DD
+    const getTodayString = () => {
+        const d = new Date();
+        const year = d.getFullYear();
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    };
 
+    const [selectedDate, setSelectedDate] = useState(getTodayString());
+    const [reportData, setReportData] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    // 获取报表数据
+    const fetchReport = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            // 调用后端新接口
+            const response = await axios.get(`${API_BASE_URL}/admin/reports/?date=${selectedDate}`, {
+                headers: { 'Authorization': `Token ${staffToken}` }
+            });
+            setReportData(response.data);
+        } catch (err) {
+            console.error("Fetch error:", err);
+            setError('Failed to load report.');
+        }
+        setLoading(false);
+    }, [selectedDate, staffToken]);
+
+    // 每次日期变化，自动刷新
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await axios.get(`${API_BASE_URL}/admin/reports/`, {
-                    headers: { 'Authorization': `Token ${staffToken}` }
-                });
-                setRawData(response.data);
-            } catch (err) {
-                console.error(err);
-            }
-            setLoading(false);
-        };
-        fetchData();
-    }, [staffToken]);
+        fetchReport();
+    }, [fetchReport]);
 
-    // 🚩 V70 升级: 筛选逻辑
-    const filteredData = useMemo(() => {
-        if (!rawData) return null;
-
-        const now = new Date();
-        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-
-        const filterList = (list) => {
-            if (timeFilter === 'all') return list;
-            
-            return list.filter(item => {
-                const itemDate = new Date(item.date);
-                
-                if (timeFilter === 'today') return itemDate >= startOfDay;
-                if (timeFilter === 'month') return itemDate >= startOfMonth;
-                if (timeFilter === 'year') return itemDate >= startOfYear;
-                
-                // 🚩 V70 新增: 指定月份筛选
-                if (timeFilter === 'custom_month') {
-                    // selectedMonth 格式是 "2025-11"
-                    const [year, month] = selectedMonth.split('-');
-                    return itemDate.getFullYear() === parseInt(year) && 
-                           (itemDate.getMonth() + 1) === parseInt(month);
-                }
-                
-                return true;
+    // 简单的 CSV 导出功能
+    const downloadCSV = () => {
+        if (!reportData) return;
+        let csv = `Time,Type,Amount,Member,Staff\n`;
+        
+        const processList = (list) => {
+            list.forEach(row => {
+                // 处理逗号，防止 CSV 错位
+                const cleanType = row.type.replace('CONSUME_', '').replace('REDEEM_', '');
+                const cleanMember = (row.member_name || '').replace(',', ' ');
+                const dateStr = new Date(row.date).toLocaleTimeString();
+                csv += `${dateStr},${cleanType},${row.amount},${cleanMember},${row.staff_name}\n`;
             });
         };
 
-        return {
-            recharges: filterList(rawData.recharges),
-            balance_usage: filterList(rawData.balance_usage),
-            voucher_usage: filterList(rawData.voucher_usage),
-            cash_income: filterList(rawData.cash_income)
-        };
-    }, [rawData, timeFilter, selectedMonth]); // 依赖项加上 selectedMonth
+        processList(reportData.recharges);
+        processList(reportData.cash_income);
+        processList(reportData.balance_usage);
+        processList(reportData.voucher_usage);
 
-    const stats = useMemo(() => {
-        if (!filteredData) return { recharge: 0, balance: 0, voucher: 0, cash: 0 };
-        const sum = (arr) => arr.reduce((acc, curr) => acc + parseFloat(curr.amount), 0);
-        return {
-            recharge: sum(filteredData.recharges),
-            balance: Math.abs(sum(filteredData.balance_usage)),
-            voucher: Math.abs(sum(filteredData.voucher_usage)),
-            cash: Math.abs(sum(filteredData.cash_income))
-        };
-    }, [filteredData]);
-
-    // 🚩 V71 修复: 强制使用新加坡时间显示
-    const formatDate = (dateStr) => {
-        if (!dateStr) return '-';
-        return new Date(dateStr).toLocaleString('zh-CN', { 
-            timeZone: 'Asia/Singapore', // 强制时区
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false // 24小时制
-        });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Report_${selectedDate}.csv`;
+        a.click();
     };
-
-    if (loading) return <div className="admin-page-container" style={{color:'white'}}>Loading...</div>;
-    if (!rawData) return <div className="admin-page-container" style={{color:'red'}}>Failed to load data</div>;
-
-    const renderTable = (transactions) => (
-        <div className="tab-content-real">
-            <div className="admin-table-container">
-                <table className="admin-table">
-                    <thead>
-                        <tr>
-                            <th style={{width: '25%'}}>{t('report.date')}</th>
-                            <th style={{width: '25%'}}>{t('report.member')}</th>
-                            <th style={{width: '25%'}}>{t('report.amount')}</th>
-                            <th style={{width: '25%'}}>{t('report.points')}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {transactions.map(txn => (
-                            <tr key={txn.id}>
-                                <td style={{color: '#888', fontSize:'13px'}}>{formatDate(txn.date)}</td>
-                                <td>
-                                    <div style={{color:'#fff'}}>{txn.member_name}</div>
-                                    <div style={{fontSize:'12px', color:'#555'}}>{txn.member_email}</div>
-                                </td>
-                                <td style={{
-                                    color: parseFloat(txn.amount) >= 0 ? '#2ecc71' : '#ff4d4f',
-                                    fontWeight: 'bold', fontSize: '16px', fontFamily: 'monospace'
-                                }}>
-                                    {parseFloat(txn.amount) > 0 ? '+' : ''}{txn.amount}
-                                </td>
-                                <td style={{color: '#D4AF37'}}>{txn.points !== 0 ? txn.points : '-'}</td>
-                            </tr>
-                        ))}
-                        {transactions.length === 0 && (
-                            <tr><td colSpan="4" style={{textAlign:'center', color:'#666', padding:'30px'}}>No records found in this period</td></tr>
-                        )}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
 
     return (
         <div className="admin-page-container">
-            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px'}}>
-                <h2 style={{margin:0, border:0, padding:0}}>{t('sidebar.nav_finance')}</h2>
-                
-                {/* V70: 增强版时间筛选器 */}
+            <h2 style={{color:'#D4AF37', marginBottom:'20px'}}>{t('Financial Daily Report')}</h2>
+
+            {/* 1. 日期选择栏 */}
+            <div style={{
+                background:'#222', padding:'20px', borderRadius:'12px', 
+                marginBottom:'20px', border:'1px solid #444',
+                display:'flex', flexWrap:'wrap', gap:'15px', alignItems:'center', justifyContent:'space-between'
+            }}>
                 <div style={{display:'flex', alignItems:'center', gap:'10px'}}>
-                    <label style={{color:'#aaa'}}>{t('report.Time Range')}:</label>
+                    <label style={{color:'#fff', fontWeight:'bold'}}>📅 {t('Date')}:</label>
+                    <input 
+                        type="date" 
+                        value={selectedDate} 
+                        onChange={(e) => setSelectedDate(e.target.value)}
+                        style={{
+                            padding:'10px', borderRadius:'8px', border:'1px solid #666', 
+                            background:'#333', color:'#fff', fontSize:'16px', fontFamily:'monospace'
+                        }}
+                    />
+                    <button className="action-button edit" onClick={fetchReport} style={{padding:'10px 20px'}}>
+                        🔄 {t('Refresh')}
+                    </button>
+                </div>
+                
+                <button className="action-button delete" onClick={downloadCSV} style={{background:'#0056b3'}}>
+                    📥 Export CSV
+                </button>
+            </div>
+
+            {loading && <p style={{color:'#aaa', textAlign:'center'}}>{t('Loading...')}</p>}
+            {error && <p style={{color:'#e74c3c', textAlign:'center'}}>{error}</p>}
+
+            {!loading && reportData && (
+                <>
+                    {/* 2. 当日汇总卡片 (Dashboard) */}
+                    <div style={{display:'grid', gridTemplateColumns:'repeat(auto-fit, minmax(200px, 1fr))', gap:'20px', marginBottom:'40px'}}>
+                        {/* 充值收入 */}
+                        <div style={{background:'#1b3a2b', padding:'20px', borderRadius:'10px', border:'1px solid #2ecc71', textAlign:'center'}}>
+                            <div style={{color:'#aaa', fontSize:'13px', textTransform:'uppercase'}}>{t('Total Recharge')}</div>
+                            <div style={{color:'#2ecc71', fontSize:'32px', fontWeight:'bold', marginTop:'5px'}}>
+                                +${reportData.summary?.total_recharge || 0}
+                            </div>
+                            <div style={{color:'#2ecc71', fontSize:'12px'}}>Cash In</div>
+                        </div>
+
+                        {/* 现金消费收入 */}
+                        <div style={{background:'#3e2723', padding:'20px', borderRadius:'10px', border:'1px solid #f39c12', textAlign:'center'}}>
+                            <div style={{color:'#aaa', fontSize:'13px', textTransform:'uppercase'}}>{t('Total Cash Spend')}</div>
+                            <div style={{color:'#f39c12', fontSize:'32px', fontWeight:'bold', marginTop:'5px'}}>
+                                +${reportData.summary?.total_cash_income || 0}
+                            </div>
+                            <div style={{color:'#f39c12', fontSize:'12px'}}>Cash In</div>
+                        </div>
+                    </div>
+
+                    {/* 3. 详细列表 (按类别) */}
+                    <SectionTitle title={`💰 ${t('Recharges')} (${reportData.recharges.length})`} color="#2ecc71" />
+                    <TransactionTable data={reportData.recharges} />
+
+                    <SectionTitle title={`💳 ${t('Cash Spending')} (${reportData.cash_income.length})`} color="#f39c12" />
+                    <TransactionTable data={reportData.cash_income} />
                     
-                    {/* 如果选了按月查询，显示月份选择器 */}
-                    {timeFilter === 'custom_month' && (
-                        <input 
-                            type="month" 
-                            value={selectedMonth}
-                            onChange={(e) => setSelectedMonth(e.target.value)}
-                            style={{padding:'7px', borderRadius:'4px', background:'#2c2c2c', color:'white', border:'1px solid #1890ff'}}
-                        />
-                    )}
+                    <SectionTitle title={`📉 ${t('Balance Usage')} (${reportData.balance_usage.length})`} color="#e74c3c" />
+                    <TransactionTable data={reportData.balance_usage} />
 
-                    <select 
-                        value={timeFilter} 
-                        onChange={(e) => setTimeFilter(e.target.value)}
-                        style={{padding:'8px', borderRadius:'4px', background:'#2c2c2c', color:'white', border:'1px solid #444'}}
-                    >
-                        <option value="today">{t('report.filter_today')}</option>
-                        <option value="month">{t('report.filter_month')}</option>
-                        <option value="year">{t('report.filter_year')}</option>
-                        <option value="all">{t('report.filter_all')}</option>
-                        <option value="custom_month">📅 {t('report.filter_custom_month')}</option>
-                    </select>
-                </div>
-            </div>
+                    <SectionTitle title={`🎫 ${t('Voucher Usage')} (${reportData.voucher_usage.length})`} color="#D4AF37" />
+                    <TransactionTable data={reportData.voucher_usage} />
+                </>
+            )}
+        </div>
+    );
+};
 
-            <div className="stats-grid">
-                <div className="stat-card stat-green">
-                    <div className="stat-title">{t('report.title_recharge')}</div>
-                    <div className="stat-value">+${stats.recharge.toFixed(2)}</div>
-                </div>
-                <div className="stat-card stat-red">
-                    <div className="stat-title">{t('report.title_balance')}</div>
-                    <div className="stat-value">-${stats.balance.toFixed(2)}</div>
-                </div>
-                <div className="stat-card stat-gold">
-                    <div className="stat-title">{t('report.title_voucher')}</div>
-                    <div className="stat-value">-${stats.voucher.toFixed(2)}</div>
-                </div>
-                <div className="stat-card stat-blue">
-                    <div className="stat-title">{t('report.title_cash')}</div>
-                    <div className="stat-value">+${stats.cash.toFixed(2)}</div>
-                </div>
-            </div>
+// 子组件：标题分割线
+const SectionTitle = ({ title, color }) => (
+    <h3 style={{
+        color: color, 
+        borderBottom: `2px solid ${color}`, 
+        paddingBottom: '10px', 
+        marginTop: '40px', 
+        fontSize: '18px',
+        display: 'flex', alignItems: 'center', gap: '10px'
+    }}>
+        {title}
+    </h3>
+);
 
-            <div style={{display: 'flex', gap: '10px', marginBottom: '0'}}>
-                <button onClick={() => setActiveTab('recharge')} className={`submit-button ${activeTab==='recharge'?'':'secondary'}`} style={{background: activeTab==='recharge'?'#2ecc71':'#333', borderBottomLeftRadius:0, borderBottomRightRadius:0}}>
-                    {t('report.tab_recharge')}
-                </button>
-                <button onClick={() => setActiveTab('balance')} className={`submit-button ${activeTab==='balance'?'':'secondary'}`} style={{background: activeTab==='balance'?'#ff4d4f':'#333', borderBottomLeftRadius:0, borderBottomRightRadius:0}}>
-                    {t('report.tab_balance')}
-                </button>
-                <button onClick={() => setActiveTab('voucher')} className={`submit-button ${activeTab==='voucher'?'':'secondary'}`} style={{background: activeTab==='voucher'?'#D4AF37':'#333', borderBottomLeftRadius:0, borderBottomRightRadius:0}}>
-                    {t('report.tab_voucher')}
-                </button>
-                <button onClick={() => setActiveTab('cash')} className={`submit-button ${activeTab==='cash'?'':'secondary'}`} style={{background: activeTab==='cash'?'#1890ff':'#333', borderBottomLeftRadius:0, borderBottomRightRadius:0}}>
-                    {t('report.tab_cash')}
-                </button>
-            </div>
-
-            <div style={{borderTop: '2px solid #333'}}>
-                {activeTab === 'recharge' && renderTable(filteredData.recharges)}
-                {activeTab === 'balance' && renderTable(filteredData.balance_usage)}
-                {activeTab === 'voucher' && renderTable(filteredData.voucher_usage)}
-                {activeTab === 'cash' && renderTable(filteredData.cash_income)}
-            </div>
-
+// 子组件：表格
+const TransactionTable = ({ data }) => {
+    if (!data || data.length === 0) return <p style={{color:'#555', fontStyle:'italic', padding:'10px'}}>No records.</p>;
+    
+    return (
+        <div className="admin-table-container">
+            <table className="admin-table">
+                <thead>
+                    <tr>
+                        <th style={{width:'15%'}}>Time</th>
+                        <th style={{width:'35%'}}>Member</th>
+                        <th style={{width:'20%'}}>Amount</th>
+                        <th style={{width:'30%'}}>Staff</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {data.map(t => (
+                        <tr key={t.id}>
+                            <td style={{color:'#888', fontSize:'13px'}}>
+                                {new Date(t.date).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}
+                            </td>
+                            <td>{t.member_name}</td>
+                            <td style={{
+                                fontWeight:'bold', 
+                                color: t.amount > 0 ? '#2ecc71' : (t.type.includes('CONSUME') ? '#e74c3c' : '#fff')
+                            }}>
+                                {t.amount > 0 ? '+' : ''}{t.amount}
+                            </td>
+                            <td style={{color:'#aaa', fontSize:'12px'}}>{t.staff_name}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };

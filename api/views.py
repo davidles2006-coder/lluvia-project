@@ -1023,29 +1023,46 @@ class BalanceStoreImageUploadView(generics.GenericAPIView):
 
 class FinancialReportView(generics.GenericAPIView):
     """
-    V67 (调试版): 财务流水导出
+    V200 升级: 支持按日期筛选财务报表
+    前端调用: GET /api/admin/reports/?date=2025-11-25
     """
     permission_classes = [permissions.IsAuthenticated, IsStaffUser]
 
     def get(self, request, *args, **kwargs):
-        # 1. 获取所有交易
-        qs = Transaction.objects.all().select_related('member').order_by('-timestamp')
+        # 1. 获取前端传来的日期参数
+        date_str = request.query_params.get('date')
         
-        # 🚩 调试日志: 在黑色窗口打印总数
-        print(f"🔍 DEBUG: Total Transactions found in DB: {qs.count()}")
+        # 2. 确定查询日期 (有参数用参数，没参数用今天)
+        if date_str:
+            try:
+                target_date = timezone.datetime.strptime(date_str, '%Y-%m-%d').date()
+            except ValueError:
+                return Response({'error': 'Invalid date format. Use YYYY-MM-DD'}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            target_date = timezone.now().date()
 
-        # 2. 分类过滤
+        # 3. 数据库查询: 筛选 timestamp 为目标日期的记录
+        # select_related 优化查询速度
+        qs = Transaction.objects.filter(timestamp__date=target_date).select_related('member', 'staff').order_by('-timestamp')
+        
+        # 4. 分类筛选
         recharge_qs = qs.filter(type='RECHARGE')
         balance_qs = qs.filter(type__in=['CONSUME_BALANCE', 'REDEEM_MERCH'])
         voucher_qs = qs.filter(type='CONSUME_VOUCHER')
         cash_qs = qs.filter(type='CONSUME_CASH')
 
-        # 🚩 调试日志: 打印分类数量
-        print(f"🔍 DEBUG: Recharges: {recharge_qs.count()}")
-        print(f"🔍 DEBUG: Balance Usage: {balance_qs.count()}")
+        # 5. 计算当日总计 (Dashboard 数据)
+        # 充值是正数，直接加
+        total_recharge = sum(t.amount for t in recharge_qs)
+        # 现金消费记录通常是负数(支出)，我们取绝对值来显示"今日收了多少现金"
+        total_cash_income = sum(abs(t.amount) for t in cash_qs) 
 
-        # 3. 序列化 (转成 JSON)
         return Response({
+            'date': target_date,
+            'summary': {
+                'total_recharge': total_recharge,
+                'total_cash_income': total_cash_income
+            },
             'recharges': self.serialize_transactions(recharge_qs),
             'balance_usage': self.serialize_transactions(balance_qs),
             'voucher_usage': self.serialize_transactions(voucher_qs),
@@ -1055,22 +1072,24 @@ class FinancialReportView(generics.GenericAPIView):
     def serialize_transactions(self, queryset):
         data = []
         for t in queryset:
-            # 确保 member 存在，防止报错
-            member_name = t.member.nickname if t.member else 'Unknown (Deleted)'
+            member_name = t.member.nickname if t.member else 'Unknown'
             member_email = t.member.email if t.member else '-'
             
+            # 获取操作员工的名字 (如果有)
+            staff_name = t.staff.nickname if t.staff else 'System'
+
             data.append({
-                'id': str(t.transactionId), # 确保转成字符串
+                'id': str(t.transactionId),
                 'date': t.timestamp,
-                'member_name': member_name,
-                'member_email': member_email,
+                'member_name': f"{member_name} ({member_email})",
                 'type': t.type,
-                'amount': float(t.amount), # 确保转成数字
-                'points': t.pointsEarned
+                'amount': float(t.amount),
+                'points': t.pointsEarned,
+                'staff_name': staff_name 
             })
         return data     
     
-    # api/views.py (底部追加)
+
 
 class PasswordResetRequestView(APIView):
     """
