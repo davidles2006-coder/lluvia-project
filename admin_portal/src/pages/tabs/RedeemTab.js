@@ -1,9 +1,9 @@
-// src/pages/tabs/RedeemTab.js - V190 (POS 键盘版)
+// src/pages/tabs/RedeemTab.js - V191 (显示有效期版)
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { API_BASE_URL as API_ROOT } from '../../config';
-import NumPad from '../../components/NumPad'; // 导入大键盘
+import NumPad from '../../components/NumPad';
 
 const API_BASE_URL = `${API_ROOT}/api`;
 
@@ -27,7 +27,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
     const handleRedeem = async () => {
         if (!selectedVoucher) return;
         
-        // 检查金额 (如果是现金券)
         const isProductVoucher = parseFloat(selectedVoucher.voucherType.value) === 0;
         if (!isProductVoucher && (!billAmount || parseFloat(billAmount) <= 0)) return;
 
@@ -45,7 +44,7 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
             });
 
             setMessage({ type: 'success', text: response.data.success });
-            setSelectedVoucher(null); // 重置
+            setSelectedVoucher(null);
             setBillAmount('');
             onMemberUpdate(); 
         } catch (err) {
@@ -60,8 +59,8 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
             
             {message.text && <div className={`message ${message.type}-message`} style={{textAlign:'center', marginBottom:'15px'}}>{message.text}</div>}
 
-            {/* 1. 代金券列表 (选中高亮) */}
-            <div className="v11-scroll-box" style={{maxHeight:'250px', overflowY:'auto', marginBottom:'20px', paddingRight:'5px'}}>
+            {/* 1. 代金券列表 */}
+            <div className="v11-scroll-box" style={{maxHeight:'300px', overflowY:'auto', marginBottom:'20px', paddingRight:'5px'}}>
                 {vouchers.length > 0 ? (
                     vouchers.map((v) => (
                         <div 
@@ -69,31 +68,40 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                             onClick={() => { setSelectedVoucher(v); setBillAmount(''); setMessage({}); }}
                             style={{
                                 padding: '15px', marginBottom:'10px', borderRadius: '8px', cursor: 'pointer',
-                                border: selectedVoucher?.voucherId === v.voucherId ? '2px solid #0056b3' : '1px solid #444',
-                                backgroundColor: selectedVoucher?.voucherId === v.voucherId ? '#002140' : '#2c2c2c',
-                                opacity: selectedVoucher && selectedVoucher.voucherId !== v.voucherId ? 0.5 : 1
+                                border: selectedVoucher?.voucherId === v.voucherId ? '2px solid #D4AF37' : '1px solid #444',
+                                backgroundColor: selectedVoucher?.voucherId === v.voucherId ? 'rgba(212, 175, 55, 0.1)' : '#2c2c2c',
+                                transition: 'all 0.2s'
                             }}
                         >
-                            <div style={{color: '#D4AF37', fontWeight: 'bold'}}>{v.voucherType.name}</div>
-                            <div style={{fontSize:'12px', color:'#888'}}>
-                                {t('Value')}: ${v.voucherType.value} | Min: ${v.voucherType.threshold}
+                            <div style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+                                <div style={{color: '#fff', fontWeight: 'bold', fontSize:'16px'}}>{v.voucherType.name}</div>
+                                <div style={{color: '#D4AF37', fontWeight:'bold'}}>
+                                    {parseFloat(v.voucherType.value) > 0 ? `$${v.voucherType.value}` : 'FREE'}
+                                </div>
+                            </div>
+                            
+                            <div style={{marginTop:'8px', fontSize:'12px', color:'#aaa', display:'flex', justifyContent:'space-between'}}>
+                                <span>Min Spend: ${v.voucherType.threshold}</span>
+                                {/* 🚩 核心修复：显示过期日期 */}
+                                <span style={{color: '#ff6b6b'}}>
+                                    📅 {new Date(v.expiryDate).toLocaleDateString()}
+                                </span>
                             </div>
                         </div>
                     ))
                 ) : (
-                    <p style={{color:'#666', textAlign:'center'}}>{t('No vouchers available.')}</p>
+                    <p style={{color:'#666', textAlign:'center', padding:'20px'}}>{t('No vouchers available.')}</p>
                 )}
             </div>
 
-            {/* 2. 键盘区域 (仅当选中券时显示) */}
+            {/* 2. 键盘区域 */}
             {selectedVoucher && (
                 <div className="redeem-action-area" style={{borderTop:'1px solid #333', paddingTop:'20px'}}>
-                    {/* 如果是现金券 ($50)，显示输入框和键盘 */}
                     {parseFloat(selectedVoucher.voucherType.value) > 0 ? (
                         <>
                             <p style={{textAlign:'center', color:'#aaa', marginBottom:'5px'}}>{t('Enter Total Bill Amount')}:</p>
                             <div className="pos-display-screen" style={{marginBottom:'15px'}}>
-                                {billAmount ? `$${billAmount}` : <span className="placeholder">Min ${selectedVoucher.voucherType.threshold}</span>}
+                                {billAmount ? `$${billAmount}` : <span className="placeholder" style={{fontSize:'16px'}}>Min ${selectedVoucher.voucherType.threshold}</span>}
                             </div>
                             <NumPad 
                                 onInput={handleNumInput} 
@@ -103,7 +111,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                             />
                         </>
                     ) : (
-                        /* 如果是产品券 (Free Drink)，直接显示按钮 */
                         <button 
                             className="numpad-submit-btn" 
                             onClick={handleRedeem} 
