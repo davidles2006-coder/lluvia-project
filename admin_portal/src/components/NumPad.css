@@ -1,0 +1,52 @@
+/* src/components/NumPad.css */
+.numpad-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 20px auto 0;
+}
+
+.numpad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.numpad-btn {
+  background: #2a2a2a;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 20px 0; /* 大按钮 */
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.numpad-btn:active {
+  background: #D4AF37;
+  color: #000;
+}
+
+.delete-btn {
+  background: #3e2723; /* 深红色背景表示删除 */
+  color: #ff6b6b;
+}
+
+.numpad-submit-btn {
+  width: 100%;
+  padding: 20px;
+  background: #D4AF37; /* 金色 */
+  color: #000;
+  font-size: 20px;
+  font-weight: 900;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  text-transform: uppercase;
+}
+
+.numpad-submit-btn:active {
+  transform: scale(0.98);
+}
