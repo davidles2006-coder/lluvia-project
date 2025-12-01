@@ -28,7 +28,11 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
         if (!selectedVoucher) return;
         
         const isProductVoucher = parseFloat(selectedVoucher.voucherType.value) === 0;
-        if (!isProductVoucher && (!billAmount || parseFloat(billAmount) <= 0)) return;
+        // 如果不是产品券，且没有输入金额，提示错误
+        if (!isProductVoucher && (!billAmount || parseFloat(billAmount) <= 0)) {
+            alert(t('Please enter bill amount'));
+            return;
+        }
 
         if (!window.confirm(t('Confirm Redeem') + "?")) return;
 
@@ -43,12 +47,35 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                 headers: { 'Authorization': `Token ${staffToken}` }
             });
 
+            // 成功
             setMessage({ type: 'success', text: response.data.success });
             setSelectedVoucher(null);
             setBillAmount('');
             onMemberUpdate(); 
+
         } catch (err) {
-            setMessage({ type: 'error', text: err.response?.data?.error || 'Failed' });
+            console.error("Redeem Error:", err);
+            
+            // 🚩 核心修复：全方位捕获错误信息
+            let errorMsg = "Failed";
+            
+            if (err.response && err.response.data) {
+                const data = err.response.data;
+                if (data.error) {
+                    // 1. 自定义错误
+                    errorMsg = data.error;
+                } else if (data.detail) {
+                    // 2. 系统详情错误
+                    errorMsg = data.detail;
+                } else if (typeof data === 'object') {
+                    // 3. 字段验证错误 (比如 {"bill_amount": ["Required"]})
+                    // 取出第一个错误的值
+                    const firstKey = Object.keys(data)[0];
+                    errorMsg = `${firstKey}: ${data[firstKey]}`;
+                }
+            }
+            
+            setMessage({ type: 'error', text: errorMsg });
         }
         setLoading(false);
     };
