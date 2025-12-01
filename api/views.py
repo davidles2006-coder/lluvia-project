@@ -535,6 +535,8 @@ class AdminConsumeView(generics.GenericAPIView):
         # 计算积分
         points_earned = get_points_for_spend(member, float(actual_spend))
 
+        xp_earned = int(actual_spend)
+
         try:
             with transaction.atomic():
                 # 1. 扣余额 (现在两个都是 Decimal，不会报错了)
@@ -542,7 +544,8 @@ class AdminConsumeView(generics.GenericAPIView):
                 
                 # 2. 加积分
                 member.loyaltyPoints += points_earned
-                member.lifetimePoints += points_earned
+                member.lifetimePoints += xp_earned
+
                 update_member_level(member)
                 member.save()
 
@@ -589,12 +592,14 @@ class AdminTrackSpendView(generics.GenericAPIView):
         # 2. 计算积分 (调用辅助函数，它已经修好了类型转换)
         # 确保 get_points_for_spend 函数在文件上方已经定义好了！
         points_earned = get_points_for_spend(member, spend_amount)
+        xp_earned = int(spend_amount)
 
         try:
             with transaction.atomic():
                 # 3. 加积分
                 member.loyaltyPoints += points_earned
-                member.lifetimePoints += points_earned
+                member.lifetimePoints += xp_earned
+
                 update_member_level(member)
                 member.save()
 
@@ -674,10 +679,12 @@ class AdminRedeemVoucherView(generics.GenericAPIView):
                 # 计算尾款
                 cash_payment = bill_amount - product.value
                 points_earned = 0
+                xp_earned = 0
 
                 # 🚩 修复 3: 如果有尾款，计算积分 (传入 float)
                 if cash_payment > 0:
                     points_earned = get_points_for_spend(member, float(cash_payment))
+                    xp_earned = int(cash_payment)
 
                 with transaction.atomic():
                     voucher.status = 'used'
@@ -686,7 +693,7 @@ class AdminRedeemVoucherView(generics.GenericAPIView):
 
                     # 加积分
                     member.loyaltyPoints += points_earned
-                    member.lifetimePoints += points_earned
+                    member.lifetimePoints += xp_earned
                     update_member_level(member)
                     member.save()
 
