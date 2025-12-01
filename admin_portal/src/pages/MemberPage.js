@@ -144,11 +144,11 @@ const MemberPage = () => {
                       <h4 style={{color:'#fff', fontSize:'16px', margin:'10px 0'}}>🚀 {t('Level Multiplier')}</h4>
                       <p style={{color:'#888', marginBottom:'5px', fontStyle:'italic'}}>{t('Points Explain')}</p>
                       <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'5px', background:'#111', padding:'10px', borderRadius:'8px'}}>
-                        <div style={{color:'#cd7f32'}}>Bronze: {t('Bronze Speed')}</div>
-                        <div style={{color:'#C0C0C0'}}>Silver: {t('Silver Speed')}</div>
-                        <div style={{color:'#D4AF37'}}>Gold: {t('Gold Speed')}</div>
-                        <div style={{color:'#e5e4e2'}}>Platinum: {t('Platinum Speed')}</div>
-                        <div style={{color:'#b9f2ff'}}>Diamond: {t('Diamond Speed')}</div>
+                        <div style={{color:'#cd7f32'}}>{t(Bronze)}: {t('Bronze Speed')}</div>
+                        <div style={{color:'#C0C0C0'}}>{t(Silver)}: {t('Silver Speed')}</div>
+                        <div style={{color:'#D4AF37'}}>{t(Gold)}: {t('Gold Speed')}</div>
+                        <div style={{color:'#e5e4e2'}}>{t(Platinum)}: {t('Platinum Speed')}</div>
+                        <div style={{color:'#b9f2ff'}}>{t(Diamond)}: {t('Diamond Speed')}</div>
                       </div>
                     </div>
 

@@ -155,13 +155,17 @@
        "error_submit": "Failed to save voucher type"
     }
   },
+
+  "Valid until": "Valid until",
+  "No Expiry": "No Expiry",
+  
   "Member Benefits": "Member Benefits",
   "View Benefits": "View Benefits",
   
   "Recharge Privileges": "💰 Recharge Bonuses",
   "Recharge Rule 1": "Recharge $300: Get 3x $50 Vouchers + Instant Upgrade to Silver!",
-  "Recharge Rule 2": "Recharge $500: Get 5x $50 Vouchers",
-  "Recharge Rule 3": "Recharge $1000: Get 10x $50 Vouchers",
+  "Recharge Rule 2": "Recharge $500: Get 5x $50 Vouchers + Upgrade to Gold!",
+  "Recharge Rule 3": "Recharge $1000: Get 10x $50 Vouchers + Upgrade to Platinum!",
   
   "Spending Privileges": "💳 Spending Rules",
   "Balance Discount": "Pay with Balance: Direct payment from account.",
@@ -176,4 +180,5 @@
   "Diamond Speed": "3.0x",
   
   "Close": "Close"
+
 }

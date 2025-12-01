@@ -125,28 +125,6 @@
     "reset_failed": "Reset failed. Link may be invalid or expired."
   },
 
-  "Member Benefits": "Member Benefits",
-  "View Benefits": "View Benefits",
-  
-  "Recharge Privileges": "💰 Recharge Bonuses",
-  "Recharge Rule 1": "Recharge $300: Get 3x $50 Vouchers + Instant Upgrade to Silver!",
-  "Recharge Rule 2": "Recharge $500: Get 5x $50 Vouchers",
-  "Recharge Rule 3": "Recharge $1000: Get 10x $50 Vouchers",
-  
-  "Spending Privileges": "💳 Spending & Discounts",
-  "Voucher Rule": "Vouchers: Use one $50 voucher for every $180 spent.",
-  "Balance Discount": "Balance Payment: Pay directly using your account balance.",
-  
-  "Level Multiplier": "🚀 Points Accelerator",
-  "Points Explain": "Earn points for every $1 actual spent:",
-  "Bronze Speed": "1.0x (Base)",
-  "Silver Speed": "1.5x",
-  "Gold Speed": "2.0x",
-  "Platinum Speed": "2.5x",
-  "Diamond Speed": "3.0x (Triple!)",
-  
-  "Close": "Close",
-
   "Game Center": "GAME CENTER",
 
   "game_center_title": "GAME CENTER",
@@ -216,7 +194,32 @@
   "card.5": "Chain: You and people on your left/right drink 1.",
   "card.6": "Lucky: Pick the best drinker to drink 2.",
   "game.monopoly_desc": "Party Game (2-6 Players)",
-  "game.locked_msg": "Locked! This game requires {{level}} level. Please recharge to upgrade!"
+  "game.locked_msg": "Locked! This game requires {{level}} level. Please recharge to upgrade!",
+
+  "Valid until": "Valid until",
+  "No Expiry": "No Expiry",
+
+  "Member Benefits": "Member Benefits",
+  "View Benefits": "View Benefits",
+  
+  "Recharge Privileges": "💰 Recharge Bonuses",
+  "Recharge Rule 1": "Recharge $300: Get 3x $50 Vouchers + Instant Upgrade to Silver!",
+  "Recharge Rule 2": "Recharge $500: Get 5x $50 Vouchers + Upgrade to Gold!",
+  "Recharge Rule 3": "Recharge $1000: Get 10x $50 Vouchers + Upgrade to Platinum!",
+  
+  "Spending Privileges": "💳 Spending & Discounts",
+  "Voucher Rule": "Vouchers: Use one $50 voucher for every $180 spent.",
+  "Balance Discount": "Balance Payment: Pay directly using your account balance.",
+  
+  "Level Multiplier": "🚀 Points Accelerator",
+  "Points Explain": "Earn points for every $1 actual spent:",
+  "Bronze Speed": "1.0x (Base)",
+  "Silver Speed": "1.5x",
+  "Gold Speed": "2.0x",
+  "Platinum Speed": "2.5x",
+  "Diamond Speed": "3.0x (Triple!)",
+  
+  "Close": "Close"
 
 
 
