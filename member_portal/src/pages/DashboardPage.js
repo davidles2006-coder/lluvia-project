@@ -180,11 +180,11 @@ function DashboardPage() {
               <h4 style={{color:'#fff', fontSize:'16px', margin:'20px 0 10px 0'}}>🚀 {t('Level Multiplier')}</h4>
               <p style={{color:'#888', marginBottom:'5px', fontStyle:'italic'}}>{t('Points Explain')}</p>
               <div style={{display:'grid', gridTemplateColumns:'1fr', gap:'8px', background:'#111', padding:'15px', borderRadius:'8px', border:'1px solid #333'}}>
-                <div style={{color:'#cd7f32', fontWeight:'bold'}}>{t(Bronze)}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Bronze Speed')}</span></div>
-                <div style={{color:'#C0C0C0', fontWeight:'bold'}}>{t(Silver)}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Silver Speed')}</span></div>
-                <div style={{color:'#D4AF37', fontWeight:'bold'}}>{t(Gold)}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Gold Speed')}</span></div>
-                <div style={{color:'#e5e4e2', fontWeight:'bold'}}>{t(Platinum)}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Platinum Speed')}</span></div>
-                <div style={{color:'#b9f2ff', fontWeight:'bold'}}>{t(Diamond)}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Diamond Speed')}</span></div>
+                <div style={{color:'#cd7f32', fontWeight:'bold'}}>{t('Bronze')}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Bronze Speed')}</span></div>
+                <div style={{color:'#C0C0C0', fontWeight:'bold'}}>{t('Silver')}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Silver Speed')}</span></div>
+                <div style={{color:'#D4AF37', fontWeight:'bold'}}>{t('Gold')}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Gold Speed')}</span></div>
+                <div style={{color:'#e5e4e2', fontWeight:'bold'}}>{t('Platinum')}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Platinum Speed')}</span></div>
+                <div style={{color:'#b9f2ff', fontWeight:'bold'}}>{t('Diamond')}: <span style={{color:'#fff', fontWeight:'normal'}}>{t('Diamond Speed')}</span></div>
               </div>
             </div>
 
