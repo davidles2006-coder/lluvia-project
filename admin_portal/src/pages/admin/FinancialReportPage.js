@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
 import { API_BASE_URL as API_ROOT } from '../../config';
-import '../AdminPageStyles.css'; 
+import './AdminPageStyles.css'; 
 
 const API_BASE_URL = `${API_ROOT}/api`;
 
