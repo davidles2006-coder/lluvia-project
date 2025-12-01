@@ -1,17 +1,15 @@
+# api/admin.py - 修复无法添加账号的问题
+
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
-from django.db import models
-# 👇 这里导入了模型，不需要在下面重新写一遍 class Member...
 from .models import (
     Member, Level, Voucher, VoucherType, Transaction, 
     RechargeTier, Reward_Points_Store, Reward_Balance_Store, 
     Announcement, FinancialLedger
 )
 
-# -----------------------------------------------------------
-# 1. 自定义表单 (Custom Forms)
-# -----------------------------------------------------------
+# 1. 自定义表单
 class MemberCreationForm(UserCreationForm):
     class Meta:
         model = Member
@@ -22,9 +20,7 @@ class MemberChangeForm(UserChangeForm):
         model = Member
         fields = ('email', 'phone', 'nickname', 'role', 'is_staff', 'is_superuser')
 
-# -----------------------------------------------------------
 # 2. Member Admin 配置
-# -----------------------------------------------------------
 @admin.register(Member)
 class MemberAdmin(BaseUserAdmin):
     form = MemberChangeForm
@@ -35,7 +31,6 @@ class MemberAdmin(BaseUserAdmin):
     search_fields = ('email', 'phone', 'nickname')
     ordering = ('email',)
 
-    # 修改用户时的界面
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
         ('Personal info', {'fields': ('nickname', 'phone', 'dob', 'avatarUrl')}),
@@ -44,18 +39,15 @@ class MemberAdmin(BaseUserAdmin):
         ('Legal', {'fields': ('isTermsAgreed', 'termsAgreedTime')}),
     )
 
-    # 🚩 添加新用户时的界面 (修复了 500 错误)
-    # 这里的 fields 必须只包含数据库里有的或者是 form 处理过的
+    # 🚩 核心修复：这里只保留 'password'，删除了会导致报错的 'password_2'
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'phone', 'role', 'is_staff', 'is_superuser', 'password', 'password_2'), 
+            'fields': ('email', 'phone', 'role', 'is_staff', 'is_superuser', 'password'), 
         }),
     )
 
-# -----------------------------------------------------------
-# 3. 其他模型注册
-# -----------------------------------------------------------
+# 3. 注册其他模型
 @admin.register(Level)
 class LevelAdmin(admin.ModelAdmin):
     list_display = ['levelId', 'levelName', 'minPoints', 'pointMultiplier']
