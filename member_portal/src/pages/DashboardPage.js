@@ -214,11 +214,37 @@ const ProfileTab = ({ userData, t, onEditClick, levelClass, onShowBenefits }) =>
       ? new Date(userData.levelExpiryDate).toLocaleDateString() 
       : t('No Expiry');
 
-  let nextLevelPoints = 500; let isMaxLevel = false; let nextLevelName = 'Silver';
-  if (points >= 6000) { nextLevelPoints = 6000; isMaxLevel = true; nextLevelName = 'Max'; } 
-  else if (points >= 3000) { nextLevelPoints = 6000; nextLevelName = 'Diamond'; } 
-  else if (points >= 1500) { nextLevelPoints = 3000; nextLevelName = 'Platinum'; } 
-  else if (points >= 500) { nextLevelPoints = 1500; nextLevelName = 'Gold'; }
+  let nextLevelPoints = 500; 
+  let nextLevelName = 'Silver';
+  let isMaxLevel = false;
+
+  switch (currentLevelName) {
+      case 'Bronze':
+          nextLevelName = 'Silver';
+          nextLevelPoints = 500;
+          break;
+      case 'Silver':
+          nextLevelName = 'Gold';
+          nextLevelPoints = 1500;
+          break;
+      case 'Gold':
+          nextLevelName = 'Platinum';
+          nextLevelPoints = 3000;
+          break;
+      case 'Platinum':
+          nextLevelName = 'Diamond';
+          nextLevelPoints = 6000;
+          break;
+      case 'Diamond':
+          nextLevelName = 'Max';
+          nextLevelPoints = 6000; // 或者设为更高
+          isMaxLevel = true;
+          break;
+      default:
+          // 默认情况
+          nextLevelName = 'Silver';
+          nextLevelPoints = 500;
+  }
   
   const progressPercent = isMaxLevel ? 100 : Math.min((points / nextLevelPoints) * 100, 100);
   const [animatedWidth, setAnimatedWidth] = useState(0);
