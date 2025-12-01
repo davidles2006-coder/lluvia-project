@@ -1,4 +1,4 @@
-// src/pages/tabs/RedeemTab.js - V191 (显示有效期版)
+// src/pages/tabs/RedeemTab.js - V195 (修复回调函数命名错误)
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +7,8 @@ import NumPad from '../../components/NumPad';
 
 const API_BASE_URL = `${API_ROOT}/api`;
 
-const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
+// 🚩 修复 1: 这里的参数必须是 onSuccess (和 MemberPage 传的一样)
+const RedeemTab = ({ member, vouchers, onSuccess }) => {
     const { t } = useTranslation();
     const staffToken = localStorage.getItem('staffToken');
 
@@ -16,7 +17,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
 
-    // 键盘处理
     const handleNumInput = (val) => {
         if (val === '.' && billAmount.includes('.')) return;
         if (billAmount.length > 8) return;
@@ -28,7 +28,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
         if (!selectedVoucher) return;
         
         const isProductVoucher = parseFloat(selectedVoucher.voucherType.value) === 0;
-        // 如果不是产品券，且没有输入金额，提示错误
         if (!isProductVoucher && (!billAmount || parseFloat(billAmount) <= 0)) {
             alert(t('Please enter bill amount'));
             return;
@@ -47,34 +46,21 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                 headers: { 'Authorization': `Token ${staffToken}` }
             });
 
-            // 成功
             setMessage({ type: 'success', text: response.data.success });
             setSelectedVoucher(null);
             setBillAmount('');
-            onMemberUpdate(); 
+            
+            // 🚩 修复 2: 调用正确的函数名
+            if (onSuccess) onSuccess(); 
 
         } catch (err) {
-            console.error("Redeem Error:", err);
-            
-            // 🚩 核心修复：全方位捕获错误信息
+            console.error(err);
             let errorMsg = "Failed";
-            
             if (err.response && err.response.data) {
                 const data = err.response.data;
-                if (data.error) {
-                    // 1. 自定义错误
-                    errorMsg = data.error;
-                } else if (data.detail) {
-                    // 2. 系统详情错误
-                    errorMsg = data.detail;
-                } else if (typeof data === 'object') {
-                    // 3. 字段验证错误 (比如 {"bill_amount": ["Required"]})
-                    // 取出第一个错误的值
-                    const firstKey = Object.keys(data)[0];
-                    errorMsg = `${firstKey}: ${data[firstKey]}`;
-                }
+                if (data.error) errorMsg = data.error;
+                else if (data.detail) errorMsg = data.detail;
             }
-            
             setMessage({ type: 'error', text: errorMsg });
         }
         setLoading(false);
@@ -86,7 +72,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
             
             {message.text && <div className={`message ${message.type}-message`} style={{textAlign:'center', marginBottom:'15px'}}>{message.text}</div>}
 
-            {/* 1. 代金券列表 */}
             <div className="v11-scroll-box" style={{maxHeight:'300px', overflowY:'auto', marginBottom:'20px', paddingRight:'5px'}}>
                 {vouchers.length > 0 ? (
                     vouchers.map((v) => (
@@ -106,13 +91,9 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                                     {parseFloat(v.voucherType.value) > 0 ? `$${v.voucherType.value}` : 'FREE'}
                                 </div>
                             </div>
-                            
                             <div style={{marginTop:'8px', fontSize:'12px', color:'#aaa', display:'flex', justifyContent:'space-between'}}>
                                 <span>Min Spend: ${v.voucherType.threshold}</span>
-                                {/* 🚩 核心修复：显示过期日期 */}
-                                <span style={{color: '#ff6b6b'}}>
-                                    📅 {new Date(v.expiryDate).toLocaleDateString()}
-                                </span>
+                                <span style={{color: '#ff6b6b'}}>📅 {new Date(v.expiryDate).toLocaleDateString()}</span>
                             </div>
                         </div>
                     ))
@@ -121,7 +102,6 @@ const RedeemTab = ({ member, vouchers, onMemberUpdate }) => {
                 )}
             </div>
 
-            {/* 2. 键盘区域 */}
             {selectedVoucher && (
                 <div className="redeem-action-area" style={{borderTop:'1px solid #333', paddingTop:'20px'}}>
                     {parseFloat(selectedVoucher.voucherType.value) > 0 ? (
