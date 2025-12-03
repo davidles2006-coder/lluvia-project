@@ -85,35 +85,34 @@
 /* ------------------------------------- */
 /* 4. 导航栏 (保持不变，加一点透明度) */
 /* ------------------------------------- */
+/* 导航栏容器 */
 .v11-navbar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
+  justify-content: space-between; /* 🚩 核心：把左右两边推到最边缘 */
+  align-items: center;            /* 垂直居中 */
   height: 70px;
-  /* 半透明黑，让背景能透一点出来 */
-  background-color: rgba(0, 0, 0, 0.8); 
-  border-bottom: 2px solid var(--color-gold);
-  backdrop-filter: blur(10px); /* 毛玻璃效果 */
-  position: relative;
-  z-index: 10;
+  background: rgba(0, 0, 0, 0.9); /* 深黑半透明背景 */
+  backdrop-filter: blur(10px);    /* 磨砂玻璃效果 */
+  border-bottom: 1px solid #333;
+  padding: 0 20px;                /* 左右留点空隙 */
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
-.v11-nav-left, .v11-nav-right {
+.v11-nav-left {
   display: flex;
-  align-items: center; /* 🚩 核心：垂直居中，防止忽上忽下 */
-  justify-content: flex-end;
-  gap: 15px;
-  height: 100%;
-  margin-left: auto; /* 推到最右边 */
+  align-items: center;
+  gap: 20px;
 }
 
 .v11-logo {
-  font-family: 'Merriweather', serif;
   font-size: 24px;
   font-weight: bold;
-  color: var(--color-gold);
-  margin-right: 20px;
+  color: #D4AF37; /* 金色 */
+  font-family: serif;
+  letter-spacing: 2px;
+  margin: 0; /* 确保没有多余边距 */
 }
 
 /* --- 📱 V132: 手机端汉堡菜单 & UI 瘦身 --- */
