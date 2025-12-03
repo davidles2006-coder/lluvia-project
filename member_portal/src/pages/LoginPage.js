@@ -1,18 +1,20 @@
-// src/pages/LoginPage.js - V195 (带显示密码功能)
+// src/pages/LoginPage.js - V201 (UI统一 + 翻译修复版)
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { API_BASE_URL } from '../config';
 import './LoginPage.css';
+// 🚩 1. 引入统一的语言切换组件
+import LanguageSwitcher from '../components/LanguageSwitcher';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false); // 🚩 控制密码显示
+  const [showPassword, setShowPassword] = useState(false); 
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation(); // 移除 i18n，因为组件里处理了
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -41,18 +43,15 @@ function LoginPage() {
     setLoading(false);
   };
 
-  const changeLanguage = (lng) => {
-    i18n.changeLanguage(lng);
-  };
-
   return (
     <div className="v11-login-container">
       <div className="v11-login-card">
-        {/* 语言切换 */}
+        
+        {/* 🚩 2. 替换为统一的语言切换按钮 (和注册页保持一致) */}
         <div className="v11-lang-switch">
-          <span onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? 'active' : ''}>EN</span>
-          <span className="divider">|</span>
-          <span onClick={() => changeLanguage('zh')} className={i18n.language === 'zh' ? 'active' : ''}>中文</span>
+            <div className="compact-lang-switch" style={{textAlign: 'right'}}>
+                 <LanguageSwitcher />
+            </div>
         </div>
 
         <h2 className="v11-login-title">LLUVIA</h2>
@@ -74,15 +73,14 @@ function LoginPage() {
           
           <div className="v11-input-group">
             <label>{t('Password')}</label>
-            {/* 🚩 核心修改：密码框包裹结构 */}
             <div className="password-wrapper">
               <input 
-                type={showPassword ? "text" : "password"} // 切换类型
+                type={showPassword ? "text" : "password"} 
                 placeholder="******" 
                 value={password} 
                 onChange={(e) => setPassword(e.target.value)} 
                 required 
-                style={{paddingRight: '40px'}} // 给图标留位置
+                style={{paddingRight: '40px'}} 
               />
               <span 
                 className="password-toggle-icon" 
