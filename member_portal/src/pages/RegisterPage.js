@@ -1,13 +1,13 @@
-// src/pages/RegisterPage.js - V73 (强制同意书版)
+// src/pages/RegisterPage.js - V196 (合并版: 强制同意书 + 显示密码)
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import './LoginPage.css'; 
 import LanguageSwitcher from '../components/LanguageSwitcher';
 
-import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
+import { API_BASE_URL as API_ROOT } from '../config'; 
 
-const API_BASE_URL = API_ROOT; // 🚩 加上 /api/ 变成最终 API 地址
+const API_BASE_URL = API_ROOT;
 
 function RegisterPage() {
   const [email, setEmail] = useState('');
@@ -18,7 +18,11 @@ function RegisterPage() {
   const [password2, setPassword2] = useState('');
   const [error, setError] = useState('');
   
-  // 🚩 V73 新增: 控制同意书弹窗
+  // 🚩 V196 新增: 控制密码显示
+  const [showPwd1, setShowPwd1] = useState(false);
+  const [showPwd2, setShowPwd2] = useState(false);
+
+  // V73: 控制同意书弹窗
   const [showTerms, setShowTerms] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,11 +35,11 @@ function RegisterPage() {
     setError('');
 
     if (password !== password2) {
-      setError('两次输入的密码不匹配 (Passwords do not match)');
+      setError(t('Passwords do not match')); // 使用翻译
       return;
     }
     if (password.length < 6) {
-      setError('密码至少需要6位');
+      setError(t('Password must be at least 6 characters')); // 建议加个翻译key
       return;
     }
     
@@ -57,16 +61,16 @@ function RegisterPage() {
       
       if (!response.ok) {
         const errorMsg = Object.values(data).flat().join(' ');
-        throw new Error(errorMsg || '注册失败');
+        throw new Error(errorMsg || t('Registration failed'));
       }
       
       // 成功
-      alert("注册成功！(Registration Successful)");
+      alert(t('Registration successful!'));
       navigate('/login');
 
     } catch (err) {
       setShowTerms(false); // 关闭弹窗以便用户修改
-      setError(err.message || '注册时发生错误，请稍后再试。');
+      setError(err.message || t('Network Error'));
     }
     setIsSubmitting(false);
   };
@@ -76,25 +80,66 @@ function RegisterPage() {
       <div className="v11-login-card">
         
         <div className="v11-lang-switcher">
-          <LanguageSwitcher />
+          <div className="compact-lang-switch" style={{marginBottom: '10px', textAlign: 'right'}}>
+             <LanguageSwitcher />
+          </div>
         </div>
 
         <h1 className="v11-login-title">LLUVIA</h1>
         <h2 className="v11-login-subtitle">{t('Create New Account')}</h2>
 
-        {/* 表单提交触发 PreCheck */}
         <form onSubmit={handlePreCheck} className="v11-login-form">
           <div className="v11-input-group"><label>{t('Email')}</label><input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
           <div className="v11-input-group"><label>{t('Nickname')}</label><input type="text" value={nickname} onChange={(e) => setNickname(e.target.value)} required /></div>
           <div className="v11-input-group"><label>{t('Phone')}</label><input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} required /></div>
           <div className="v11-input-group"><label>{t('Birthday')}</label><input type="date" value={dob} onChange={(e) => setDob(e.target.value)} required /></div>
-          <div className="v11-input-group"><label>{t('Password')}</label><input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
-          <div className="v11-input-group"><label>{t('Password')} (Confirm)</label><input type="password" value={password2} onChange={(e) => setPassword2(e.target.value)} required /></div>
+          
+          {/* 🚩 密码框 1 (带眼睛) */}
+          <div className="v11-input-group">
+            <label>{t('Password')}</label>
+            <div className="password-wrapper">
+                <input 
+                    type={showPwd1 ? "text" : "password"} 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    required 
+                    style={{paddingRight: '40px'}}
+                />
+                <span 
+                    className="password-toggle-icon" 
+                    onClick={() => setShowPwd1(!showPwd1)}
+                    style={{position:'absolute', right:'10px', cursor:'pointer', color:'#888'}}
+                >
+                    {showPwd1 ? '👁️' : '🔒'}
+                </span>
+            </div>
+          </div>
+
+          {/* 🚩 密码框 2 (带眼睛) */}
+          <div className="v11-input-group">
+            <label>{t('Password')} (Confirm)</label>
+            <div className="password-wrapper">
+                <input 
+                    type={showPwd2 ? "text" : "password"} 
+                    value={password2} 
+                    onChange={(e) => setPassword2(e.target.value)} 
+                    required 
+                    style={{paddingRight: '40px'}}
+                />
+                <span 
+                    className="password-toggle-icon" 
+                    onClick={() => setShowPwd2(!showPwd2)}
+                    style={{position:'absolute', right:'10px', cursor:'pointer', color:'#888'}}
+                >
+                    {showPwd2 ? '👁️' : '🔒'}
+                </span>
+            </div>
+          </div>
           
           {error && <p className="v11-error-message">{error}</p>}
           
           <button type="submit" className="btn-pill v11-login-button">
-            {t('Register')} {/* 这里显示的其实是"下一步"或"注册" */}
+            {t('Register')} 
           </button>
         </form>
 
@@ -103,14 +148,13 @@ function RegisterPage() {
         </div>
       </div>
 
-      {/* 🚩 V73: 强制同意书弹窗 */}
+      {/* 条款弹窗 (保持不变) */}
       {showTerms && (
         <div className="v11-modal-overlay">
           <div className="v11-modal-content">
             <h3 className="v11-modal-title">{t('terms.title')}</h3>
             
-            <div className="terms-scroll-box">
-               {/* 这里直接复用 TermsPage 的内容，确保用户必须看到 */}
+            <div className="terms-scroll-box" style={{maxHeight: '60vh', overflowY: 'auto', marginBottom: '20px', textAlign: 'left', color: '#ccc'}}>
                <h4 style={{color:'#D4AF37'}}>{t('terms.section1_title')}</h4>
                <p>{t('terms.section1_text')}</p>
 
@@ -136,7 +180,6 @@ function RegisterPage() {
                 {t('Cancel')}
               </button>
               
-              {/* 只有点了这个，才会真正注册 */}
               <button 
                 className="btn-pill" 
                 onClick={handleFinalRegister}

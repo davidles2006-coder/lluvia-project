@@ -1,162 +1,231 @@
-/* src/pages/LoginPage.css - V11 风格 */
+/* src/pages/LoginPage.css */
 
-/* 1. V11 蓝图：全屏容器 (使用 index.css 的 --color-bg) */
+/* --- 1. 整体容器 --- */
 .v11-login-container {
+  min-height: 100vh;
+  background-color: #000;
+  background-image: radial-gradient(circle at center, #1a1a1a 0%, #000 100%);
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  width: 100%;
-  background: var(--color-bg); /* 确保背景是深炭黑 */
+  padding: 20px;
+  color: #fff;
 }
 
-/* 2. V11 蓝图：“黑金”登录卡片 */
+/* --- 2. 卡片主体 --- */
 .v11-login-card {
-  position: relative; /* 用于定位语言切换器 */
-  background-color: var(--color-grey); /* 深灰色卡片 */
-  padding: 50px 60px;
+  background: #111;
+  border: 1px solid #333;
   border-radius: 16px;
-  border: 1px solid var(--color-gold); /* 金色边框 */
-  box-shadow: 0 10px 30px rgba(212, 175, 55, 0.15);
+  padding: 40px;
   width: 100%;
-  max-width: 450px;
-  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
 }
 
-/* 3. V11 蓝图：右上角语言切换 */
-.v11-lang-switcher {
-  position: absolute;
-  top: 25px;
-  right: 25px;
-}
-.v11-lang-switcher .link-independent {
-  font-size: 14px;
-}
-
-/* 4. 标题 */
+/* --- 3. 标题 --- */
 .v11-login-title {
-  font-family: var(--font-heading);
-  color: var(--color-gold);
-  font-size: 48px;
+  color: #D4AF37; /* 香槟金 */
+  font-family: serif;
+  text-align: center;
+  font-size: 32px;
   margin: 0 0 10px 0;
+  letter-spacing: 2px;
 }
+
 .v11-login-subtitle {
-  color: var(--color-text);
-  font-size: 18px;
-  font-weight: 300;
-  margin-bottom: 40px;
+  color: #666;
+  text-align: center;
+  font-size: 14px;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
-/* 5. V11 表单样式 */
-.v11-login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  text-align: left;
-}
-
+/* --- 4. 输入框组 --- */
 .v11-input-group {
-  display: flex;
-  flex-direction: column;
+  margin-bottom: 20px;
 }
 
 .v11-input-group label {
-  font-size: 14px;
-  color: var(--color-text);
+  display: block;
+  color: #aaa;
+  font-size: 12px;
   margin-bottom: 8px;
+  padding-left: 5px;
 }
 
 .v11-input-group input {
-  background: var(--color-bg);
+  width: 100%;
+  padding: 12px 15px;
+  background: #222;
   border: 1px solid #444;
   border-radius: 8px;
-  padding: 14px;
+  color: #fff;
   font-size: 16px;
-  color: var(--color-text);
-  transition: border-color 0.3s ease;
+  box-sizing: border-box; /* 防止 padding 撑大宽度 */
+  transition: border-color 0.3s;
 }
 
 .v11-input-group input:focus {
+  border-color: #D4AF37;
   outline: none;
-  border-color: var(--color-gold); /* 聚焦时金色 */
 }
 
-/* 6. V11 按钮 */
-.v11-login-button {
-  margin-top: 20px;
+/* --- 🚩 5. 密码显示/隐藏图标 (新功能) --- */
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
   width: 100%;
 }
 
-/* 7. V11 蓝图：次要动作 */
-.v11-secondary-actions {
-  margin-top: 30px;
+.password-toggle-icon {
+  position: absolute;
+  right: 15px;
+  cursor: pointer;
+  font-size: 18px;
+  color: #666;
+  user-select: none;
+  z-index: 10;
   display: flex;
-  flex-direction: column;
-  gap: 15px;
+  align-items: center;
 }
 
-.v11-secondary-actions .link-independent {
-  font-size: 14px;
+.password-toggle-icon:hover {
+  color: #D4AF37;
 }
 
-/* 8. 错误信息 */
-.v11-error-message {
-  color: var(--color-danger);
-  font-size: 14px;
-  margin: -10px 0 0 0; /* 放在输入框和按钮之间 */
+/* --- 6. 按钮与链接 --- */
+.v11-login-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(45deg, #D4AF37, #C5A028);
+  color: #000;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: transform 0.1s;
 }
 
-/* src/pages/LoginPage.css - 追加弹窗样式 */
+.v11-login-btn:active {
+  transform: scale(0.98);
+}
 
-/* --- 注册同意书弹窗 --- */
+.v11-login-footer {
+  margin-top: 25px;
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.v11-link {
+  color: #888;
+  text-decoration: none;
+}
+
+.v11-link:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+.v11-error-msg {
+  color: #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  text-align: center;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* --- 7. 语言切换 --- */
+.v11-lang-switch {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 12px;
+  color: #666;
+}
+
+.v11-lang-switch span {
+  cursor: pointer;
+}
+.v11-lang-switch span.active { color: #D4AF37; font-weight: bold; }
+.v11-lang-switch .divider { margin: 0 5px; cursor: default; }
+
+/* --- 🚩 8. 弹窗样式 (服务条款专用) --- */
 .v11-modal-overlay {
   position: fixed;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background-color: rgba(0, 0, 0, 0.9); /* 更黑一点，强调严肃性 */
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 2000;
-  backdrop-filter: blur(5px);
+  z-index: 1000;
+  backdrop-filter: blur(3px);
 }
 
 .v11-modal-content {
-  background-color: #1e1e1e;
-  border: 2px solid #D4AF37;
-  border-radius: 16px;
+  background: #1e1e1e;
+  border: 1px solid #D4AF37;
+  border-radius: 12px;
   padding: 30px;
   width: 90%;
-  max-width: 600px;
-  box-shadow: 0 0 30px rgba(212, 175, 55, 0.2);
-  color: #fff;
-  max-height: 80vh; /* 防止超长 */
-  display: flex;
-  flex-direction: column;
-}
-
-.terms-scroll-box {
-  overflow-y: auto;
-  border: 1px solid #444;
-  padding: 15px;
-  margin: 20px 0;
-  background: #121212;
-  border-radius: 8px;
-  color: #ccc;
-  font-size: 14px;
-  line-height: 1.6;
-  flex: 1; /* 占满剩余空间 */
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(212, 175, 55, 0.15);
 }
 
 .v11-modal-title {
   color: #D4AF37;
-  text-align: center;
-  margin: 0;
-  font-size: 22px;
+  margin-top: 0;
+  border-bottom: 1px solid #333;
+  padding-bottom: 15px;
+  margin-bottom: 20px;
 }
 
+/* 条款滚动区域 */
+.terms-scroll-box {
+  max-height: 50vh;
+  overflow-y: auto;
+  text-align: left;
+  color: #ccc;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 20px;
+  padding-right: 5px;
+}
+
+/* 弹窗底部按钮 */
 .v11-modal-actions {
   display: flex;
-  gap: 20px;
-  margin-top: 10px;
+  gap: 10px;
+  justify-content: flex-end;
 }
-.v11-modal-actions button { flex: 1; }
+
+.btn-cancel {
+  background: transparent;
+  border: 1px solid #666;
+  color: #888;
+  padding: 8px 20px;
+  border-radius: 20px;
+  cursor: pointer;
+}
+
+.btn-pill {
+  background: #D4AF37;
+  border: none;
+  color: #000;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+}

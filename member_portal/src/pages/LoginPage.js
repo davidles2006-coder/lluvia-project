@@ -1,89 +1,106 @@
-// src/pages/LoginPage.js - V25 (i18next) 修复版
+// src/pages/LoginPage.js - V195 (带显示密码功能)
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-
-// V22/V25 修复：1. 导入 V16 真正的 Hook
 import { useTranslation } from 'react-i18next';
-
-// V11 视觉
-import './LoginPage.css'; 
-
-// V16 逻辑
-import LanguageSwitcher from '../components/LanguageSwitcher'; 
-
-// V13 逻辑 (Django API)
-import { API_BASE_URL as API_ROOT } from '../config'; // 🚩 导入根地址
-
-const API_BASE_URL = API_ROOT; // 🚩 加上 /api/ 变成最终 API 地址 
+import { API_BASE_URL } from '../config';
+import './LoginPage.css';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // 🚩 控制密码显示
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  
-  // V22/V25 修复：2. 使用 V16 的 Hook
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
-  // V13 的 handleLogin 逻辑 100% 保持不变
   const handleLogin = async (e) => {
-    e.preventDefault(); 
-    setError(''); 
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
     try {
       const response = await fetch(`${API_BASE_URL}/api/login/`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password })
       });
+
       const data = await response.json();
-      if (!response.ok) { throw new Error(data.error || '登录失败'); }
-      localStorage.setItem('authToken', data.token); 
-      localStorage.setItem('memberNickname', data.nickname);
-      navigate('/member/dashboard');
+
+      if (response.ok) {
+        localStorage.setItem('authToken', data.token);
+        localStorage.setItem('memberId', data.memberId);
+        navigate('/member/dashboard');
+      } else {
+        setError(t('Invalid Credentials'));
+      }
     } catch (err) {
-      setError(err.message || '邮箱或密码不正确。');
+      setError(t('Network Error'));
     }
+    setLoading(false);
   };
 
+  const changeLanguage = (lng) => {
+    i18n.changeLanguage(lng);
+  };
 
   return (
-    // V11 视觉 (黑金卡片)
     <div className="v11-login-container">
       <div className="v11-login-card">
-        
-        {/* V16 逻辑 (你的组件) */}
-        <div className="v11-lang-switcher">
-          <LanguageSwitcher />
+        {/* 语言切换 */}
+        <div className="v11-lang-switch">
+          <span onClick={() => changeLanguage('en')} className={i18n.language === 'en' ? 'active' : ''}>EN</span>
+          <span className="divider">|</span>
+          <span onClick={() => changeLanguage('zh')} className={i18n.language === 'zh' ? 'active' : ''}>中文</span>
         </div>
 
-        <h1 className="v11-login-title">LLUVIA</h1>
+        <h2 className="v11-login-title">LLUVIA</h2>
+        <p className="v11-login-subtitle">{t('Member Login')}</p>
         
-        {/* V22/V25 修复：3. 使用 t() 函数 (来自 i18n.js) */}
-        <h2 className="v11-login-subtitle">{t('Member Portal Login')}</h2>
+        {error && <div className="v11-error-msg">{error}</div>}
 
         <form onSubmit={handleLogin} className="v11-login-form">
           <div className="v11-input-group">
-            <label htmlFor="email">{t('Email')}</label>
-            <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+            <label>{t('Email')}</label>
+            <input 
+              type="email" 
+              placeholder="name@example.com" 
+              value={email} 
+              onChange={(e) => setEmail(e.target.value)} 
+              required 
+            />
           </div>
-          <div className="v11-input-group">
-            <label htmlFor="password">{t('Password')}</label>
-            <input type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-          </div>
-          {error && <p className="v11-error-message">{error}</p>}
           
-          <button type="submit" className="btn-pill v11-login-button">
-            {t('Secure Login')}
+          <div className="v11-input-group">
+            <label>{t('Password')}</label>
+            {/* 🚩 核心修改：密码框包裹结构 */}
+            <div className="password-wrapper">
+              <input 
+                type={showPassword ? "text" : "password"} // 切换类型
+                placeholder="******" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+                style={{paddingRight: '40px'}} // 给图标留位置
+              />
+              <span 
+                className="password-toggle-icon" 
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? '👁️' : '🔒'}
+              </span>
+            </div>
+          </div>
+
+          <button type="submit" className="v11-login-btn" disabled={loading}>
+            {loading ? t('Loading...') : t('Login')}
           </button>
         </form>
 
-        <div className="v11-secondary-actions">
-          <Link to="/register" className="link-independent">
-            {t('No account? Register now')}
-          </Link>
-          <Link to="/forgot-password" className="link-independent" style={{marginTop: '10px'}}>
-            {t('Forgot Password?')}
-          </Link>
+        <div className="v11-login-footer">
+          <Link to="/register" className="v11-link">{t('Create Account')}</Link>
+          <Link to="/forgot-password" className="v11-link">{t('Forgot Password?')}</Link>
         </div>
       </div>
     </div>
