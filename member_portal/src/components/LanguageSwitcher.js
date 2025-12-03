@@ -42,7 +42,7 @@ const LanguageSwitcher = ({ className = "" }) => {
             }}
         >
             {/* 按钮显示状态 */}
-            {isChinese ? 'Switch to English' : '切换中文'}
+            {isChinese ? 'English' : '中文'}
         </button>
     );
 };

@@ -1,6 +1,15 @@
 {
   "Member Portal Login": "Member Portal Login",
   "Email": "Email",
+
+  "Member Login": "Member Login",
+  
+  "Login": "Login",
+  "Create Account": "Create New Account",
+  "Invalid Credentials": "Invalid email or password",
+  "Network Error": "Network error, please try again later",
+
+
   "Phone": "Phone",
   "Birthday": "Birthday",
   "Balance": "Balance",
