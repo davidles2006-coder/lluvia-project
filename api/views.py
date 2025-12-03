@@ -21,7 +21,7 @@ from django.core.mail import send_mail
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 User = get_user_model()
-
+import random
 # 导入我们所有的模型
 from .models import (
     Member, Level, Voucher, VoucherType, Transaction, RechargeTier,
@@ -1124,33 +1124,132 @@ class PasswordResetRequestView(APIView):
         return Response({'success': 'Email sent'}, status=status.HTTP_200_OK)
 
 
+# api/views.py 中的 PasswordResetConfirmView
+
 class PasswordResetConfirmView(APIView):
     """
-    V74: 确认重置密码 (修改数据库)
+    V206 修复: 增强版密码重置确认
     """
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+        # 1. 获取数据
         uid_b64 = request.data.get('uid')
         token = request.data.get('token')
         new_password = request.data.get('new_password')
 
+        # 2. 打印日志到后台 (方便排查)
+        print(f"🔍 Reset Attempt: UID={uid_b64}, Token={token}")
+
         if not uid_b64 or not token or not new_password:
-            return Response({'error': 'Missing data'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Missing data (uid, token, or password)'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # 1. 解码 UID
-            uid = force_str(urlsafe_base64_decode(uid_b64))
-            user = User.objects.get(pk=uid)
+            # 3. 解码 UID
+            # (确保导入了这些工具: force_str, urlsafe_base64_decode)
+            try:
+                uid = force_str(urlsafe_base64_decode(uid_b64))
+                print(f"✅ Decoded UID: {uid}")
+            except Exception as e:
+                print(f"🔥 Decode Error: {e}")
+                return Response({'error': 'Invalid UID format'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # 2. 验证 Token 是否有效
+            # 4. 查找用户 (使用 get_user_model 确保兼容自定义 Member)
+            User = get_user_model()
+            try:
+                user = User.objects.get(pk=uid)
+            except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+                print(f"🔥 User not found for UID: {uid}")
+                return Response({'error': 'Invalid user'}, status=status.HTTP_400_BAD_REQUEST)
+
+            # 5. 验证 Token
             if not default_token_generator.check_token(user, token):
+                print(f"🔥 Invalid Token for user {user.email}")
                 return Response({'error': 'Invalid or expired token'}, status=status.HTTP_400_BAD_REQUEST)
 
-            # 3. 设置新密码
+            # 6. 设置新密码
             user.set_password(new_password)
             user.save()
+            print(f"✅ Password reset success for {user.email}")
+            
             return Response({'success': 'Password reset successfully'}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return Response({'error': 'Invalid token or user'}, status=status.HTTP_400_BAD_REQUEST)
+            # 捕获所有未预料的崩溃，打印出来而不是报 500
+            print(f"🔥 CRITICAL ERROR in ResetConfirm: {str(e)}")
+            return Response({'error': f'Server Error: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        # --- 游戏 API (V170: 幸运老虎机) ---
+
+class GamePlayView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    
+    def post(self, request):
+        user = request.user
+        COST_PER_SPIN = 100 
+        
+        # 1. 检查积分
+        if user.loyaltyPoints < COST_PER_SPIN:
+            return Response({'error': 'Not enough points (Need 100 Pts)'}, status=status.HTTP_400_BAD_REQUEST)
+            
+        # 2. 随机逻辑
+        symbols = ['🍸', '💎', '7️⃣', '🔔']
+        reel1 = random.choice(symbols)
+        reel2 = random.choice(symbols)
+        reel3 = random.choice(symbols)
+        result_symbols = [reel1, reel2, reel3]
+        
+        prize = 0
+        message = "Try Again!"
+        
+        # 3. 判定奖励
+        if reel1 == reel2 == reel3:
+            if reel1 == '7️⃣': 
+                prize = 1000
+                message = "JACKPOT! +1000 Pts!"
+            else: 
+                prize = 500
+                message = "Big Win! +500 Pts!"
+        elif reel1 == reel2 or reel2 == reel3 or reel1 == reel3:
+            prize = 50
+            message = "Small Win! +50 Pts"
+            
+        try:
+            with transaction.atomic():
+                # 扣费
+                user.loyaltyPoints -= COST_PER_SPIN
+                
+                # 发奖
+                if prize > 0: 
+                    user.loyaltyPoints += prize
+                
+                user.save()
+                
+                # 记账 (扣费)
+                Transaction.objects.create(
+                    member=user, 
+                    type='SYSTEM_ADJUST', 
+                    amount=0, 
+                    pointsEarned=-COST_PER_SPIN, 
+                    staff=None
+                )
+                
+                # 记账 (发奖)
+                if prize > 0: 
+                    Transaction.objects.create(
+                        member=user, 
+                        type='REWARD_ISSUE', 
+                        amount=0, 
+                        pointsEarned=prize, 
+                        staff=None
+                    )
+                    
+        except Exception as e: 
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+        return Response({
+            'reels': result_symbols, 
+            'prize': prize, 
+            'balance': user.loyaltyPoints, 
+            'message': message
+        }, status=status.HTTP_200_OK)
