@@ -101,8 +101,11 @@
 
 .v11-nav-left, .v11-nav-right {
   display: flex;
-  align-items: center;
-  gap: 25px;
+  align-items: center; /* 🚩 核心：垂直居中，防止忽上忽下 */
+  justify-content: flex-end;
+  gap: 15px;
+  height: 100%;
+  margin-left: auto; /* 推到最右边 */
 }
 
 .v11-logo {
@@ -129,6 +132,10 @@
   /* A. 隐藏桌面元素 */
   .desktop-links, .desktop-only {
     display: none !important;
+  }
+
+  .v11-nav-right {
+    gap: 10px; /* 手机上间距稍微小一点 */
   }
 
   /* B. 显示汉堡按钮 */
@@ -197,11 +204,20 @@
   .mobile-link.logout { color: #e74c3c; }
 
   /* E. 语言按钮瘦身 */
-  .compact-lang-switch button {
-    font-size: 12px !important; /* 缩小字体 */
-    padding: 5px 10px !important; /* 缩小内边距 */
-    height: 30px; /* 限制高度 */
-  }
+  .compact-lang-switch {
+  display: flex;
+  align-items: center; /* 🚩 核心：让按钮在外壳里居中 */
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  line-height: 0; /* 防止文字行高撑开 */
+}
+
+/* 3. 针对你刚才发的 LanguageSwitcher 组件的样式调整 */
+.language-switcher {
+  /* 如果觉得按钮太靠上或靠下，可以用 margin-top 微调，但 flex 应该能自动搞定 */
+   margin-top: 2px;
+}
   
   /* F. 内容区边距 */
   .v11-content {

@@ -32,19 +32,24 @@ const LanguageSwitcher = ({ className = "" }) => {
             className={`language-switcher ${className}`}
             style={{ 
                 backgroundColor: 'transparent',
-                color: '#FF007F',
-                border: '1px solid #FF007F',
-                padding: '4px 6px',
-                fontSize: '10px',
-                borderRadius: '4px',
+                color: '#D4AF37',            // 🚩 改成金色
+                border: '1px solid #D4AF37', // 🚩 改成金色边框
+                padding: '4px 8px',          //稍微宽一点点
+                fontSize: '11px',            // 字体稍微大一丢丢
+                fontWeight: 'bold',
+                borderRadius: '12px',        // 圆角更圆润
                 cursor: 'pointer',
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                display: 'flex',             // 确保文字居中
+                alignItems: 'center',
+                height: '24px'               // 固定一个小高度
             }}
         >
-            {/* 按钮显示状态 */}
-            {isChinese ? 'English' : '中文'}
+            {isChinese ? 'EN' : '中文'}     {/* 简写更整齐 */}
         </button>
     );
+
+    
 };
 
 export default LanguageSwitcher;
