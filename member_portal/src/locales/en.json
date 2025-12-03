@@ -123,6 +123,14 @@
   "reset.request_success": "Link sent! Please check your email.",
   "reset.request_failed": "Failed to send link. Please try again.",
   "Back to Login": "Back to Login",
+
+  "Reset Password": "Reset Password",
+  "New Password": "New Password",
+  "Confirm New Password": "Confirm New Password",
+  "Set New Password": "Set New Password",
+  "Passwords do not match": "Passwords do not match",
+  "Reset Success": "Password reset successfully! Redirecting...",
+  "Reset Failed": "Reset failed. Link may be expired.",
  
 
   "reset": {

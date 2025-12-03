@@ -120,6 +120,14 @@
   "reset.request_success": "发送成功！请查收邮件并点击链接重置密码。",
   "reset.request_failed": "发送失败，请检查邮箱是否正确或稍后重试。",
   "Back to Login": "返回登录",
+
+  "Reset Password": "重置密码",
+  "New Password": "新密码",
+  "Confirm New Password": "确认新密码",
+  "Set New Password": "设置新密码",
+  "Passwords do not match": "两次输入的密码不一致",
+  "Reset Success": "密码重置成功！正在跳转登录页...",
+  "Reset Failed": "重置失败，链接可能已过期。",
   
 
   "reset": {
