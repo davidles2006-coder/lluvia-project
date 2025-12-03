@@ -118,11 +118,11 @@
   },
 
   "Forgot Password?": "Forgot Password?",
-  "Back to Login": "Back to Login",
   "Send Reset Link": "Send Reset Link",
-  "Set New Password": "Set New Password",
-  "New Password": "New Password",
-  "Confirm Password": "Confirm Password",
+  "reset.request_info": "Enter your email to receive a reset link.",
+  "reset.request_success": "Link sent! Please check your email.",
+  "reset.request_failed": "Failed to send link. Please try again.",
+  "Back to Login": "Back to Login",
  
 
   "reset": {

@@ -114,12 +114,12 @@
     "button_agree": "我已阅读并同意"
   },
 
-  "Forgot Password?": "忘记密码?",
-  "Back to Login": "返回登录",
+  "Forgot Password?": "忘记密码？",
   "Send Reset Link": "发送重置链接",
-  "Set New Password": "设置新密码",
-  "New Password": "新密码",
-  "Confirm Password": "确认密码",
+  "reset.request_info": "请输入您的注册邮箱，我们将发送重置链接给您。",
+  "reset.request_success": "发送成功！请查收邮件并点击链接重置密码。",
+  "reset.request_failed": "发送失败，请检查邮箱是否正确或稍后重试。",
+  "Back to Login": "返回登录",
   
 
   "reset": {
