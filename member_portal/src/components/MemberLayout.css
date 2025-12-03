@@ -100,11 +100,30 @@
   z-index: 1000;
 }
 
+.v11-nav-right
+ {
+  display: flex;
+  align-items: center;    /* 🚩 核心修复：确保内部元素垂直居中 */
+  justify-content: flex-end;
+  height: 100%;
+  gap: 15px;              /* 按钮和菜单之间的间距 */
+}
+
+
 .v11-nav-left {
   display: flex;
   align-items: center;
   gap: 20px;
 }
+
+.compact-lang-switch {
+  display: flex;
+  align-items: center;
+  height: auto;
+  margin: 0;
+  padding: 0;
+}
+
 
 .v11-logo {
   font-size: 24px;
